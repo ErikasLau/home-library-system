@@ -1,6 +1,6 @@
 package com.myhomelibrary.library_system.entities;
 
-import com.myhomelibrary.library_system.domain.LibraryPrivacyStatus;
+import com.myhomelibrary.library_system.domain.enums.LibraryPrivacyStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;

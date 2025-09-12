@@ -1,6 +1,6 @@
 package com.myhomelibrary.library_system.entities;
 
-import com.myhomelibrary.library_system.domain.UserRole;
+import com.myhomelibrary.library_system.domain.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
