@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: library-system
+
+  datasource:
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    url: ${SPRING_DATASOURCE_URL}?currentSchema=${SPRING_DATASOURCE_SCHEMA}
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+
+  flyway:
+    user: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    schemas: ${SPRING_DATASOURCE_SCHEMA}
+    locations: classpath:db/migration
