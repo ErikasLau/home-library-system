@@ -16,7 +16,7 @@ import java.util.UUID;
 @Table(name = "users")
 @Data
 @ToString(exclude = {"libraries", "comments"})
-public class User {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

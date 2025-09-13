@@ -1,0 +1,8 @@
+ALTER TABLE books
+    ADD user_id BIGINT;
+
+ALTER TABLE books
+    ALTER COLUMN user_id SET NOT NULL;
+
+ALTER TABLE books
+    ADD CONSTRAINT FK_BOOKS_USER FOREIGN KEY (user_id) REFERENCES users (pk);

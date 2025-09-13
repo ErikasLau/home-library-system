@@ -13,7 +13,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "books")
 @Data
-@ToString(exclude = "comments")
+@ToString(exclude = {"comments", "library", "user"})
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -65,9 +65,19 @@ public class BookEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
+
+    @Column(name = "library_id", nullable = false)
+    private Long libraryId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "library_id", nullable = false)
     private LibraryEntity library;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_books_user"))
+    private UserEntity user;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CommentEntity> comments;
