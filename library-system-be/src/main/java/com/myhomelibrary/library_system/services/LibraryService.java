@@ -21,8 +21,6 @@ import java.util.UUID;
 public class LibraryService {
     private final LibraryRepository libraryRepository;
 
-    //TODO: ADD OWNER
-
     @Transactional(readOnly = true)
     public Library getLibraryById(UUID id) {
         return LibraryConverter.toLibrary(libraryRepository.findLibraryById(id).orElseThrow(NotFoundException::new));
@@ -43,8 +41,8 @@ public class LibraryService {
     }
 
     @Transactional
-    public Library createBook(LibraryRequest libraryRequest) {
-        var libraryEntity = LibraryConverter.toLibraryEntity(libraryRequest);
+    public Library createBook(LibraryRequest libraryRequest, Long userId) {
+        var libraryEntity = LibraryConverter.toLibraryEntity(libraryRequest, userId);
         var savedLibraryEntity = libraryRepository.save(libraryEntity);
         return LibraryConverter.toLibrary(savedLibraryEntity);
     }

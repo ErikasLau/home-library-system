@@ -5,13 +5,14 @@ import com.myhomelibrary.library_system.domains.Library.LibraryRequest;
 import com.myhomelibrary.library_system.entities.LibraryEntity;
 
 public class LibraryConverter {
-    public static LibraryEntity toLibraryEntity(LibraryRequest libraryRequest) {
+    public static LibraryEntity toLibraryEntity(LibraryRequest libraryRequest, Long userId) {
         return LibraryEntity.builder()
                 .title(libraryRequest.getTitle())
                 .description(libraryRequest.getDescription())
                 .color(libraryRequest.getColor())
                 .privacyStatus(libraryRequest.getPrivacyStatus())
                 .isEditable(libraryRequest.isEditable())
+                .userId(userId)
                 .build();
     }
 

@@ -72,11 +72,11 @@ public class BookEntity {
     private Long libraryId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "library_id", nullable = false)
+    @JoinColumn(name = "library_id", insertable = false, updatable = false)
     private LibraryEntity library;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false, foreignKey = @ForeignKey(name = "fk_books_user"))
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private UserEntity user;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)

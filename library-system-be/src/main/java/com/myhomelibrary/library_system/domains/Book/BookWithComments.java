@@ -7,7 +7,6 @@ import java.util.List;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookWithComments extends Book {
