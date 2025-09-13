@@ -1,4 +1,4 @@
-package com.myhomelibrary.library_system.domains;
+package com.myhomelibrary.library_system.domains.Book;
 
 import jakarta.validation.constraints.*;
 import lombok.Data;

@@ -2,8 +2,7 @@ package com.myhomelibrary.library_system.entities;
 
 import com.myhomelibrary.library_system.domains.enums.LibraryPrivacyStatus;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,6 +14,9 @@ import java.util.UUID;
 @Table(name = "libraries")
 @Data
 @ToString(exclude = "books")
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class LibraryEntity {
 
     @Id

@@ -1,9 +1,9 @@
 package com.myhomelibrary.library_system.services;
 
 import com.myhomelibrary.library_system.converters.BookConverter;
-import com.myhomelibrary.library_system.domains.Book;
-import com.myhomelibrary.library_system.domains.BookRequest;
-import com.myhomelibrary.library_system.domains.BookShort;
+import com.myhomelibrary.library_system.domains.Book.Book;
+import com.myhomelibrary.library_system.domains.Book.BookRequest;
+import com.myhomelibrary.library_system.domains.Book.BookShort;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.BookRepository;
 import lombok.AllArgsConstructor;
