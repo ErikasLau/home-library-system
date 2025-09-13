@@ -1,6 +1,6 @@
 package com.myhomelibrary.library_system.entities;
 
-import com.myhomelibrary.library_system.domain.enums.LibraryPrivacyStatus;
+import com.myhomelibrary.library_system.domains.enums.LibraryPrivacyStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @Table(name = "libraries")
 @Data
 @ToString(exclude = "books")
-public class Library {
+public class LibraryEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -54,6 +54,6 @@ public class Library {
     private User owner;
 
     @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Book> books;
+    private List<BookEntity> books;
 }
 

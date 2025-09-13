@@ -1,8 +1,7 @@
 package com.myhomelibrary.library_system.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -15,7 +14,10 @@ import java.util.UUID;
 @Table(name = "books")
 @Data
 @ToString(exclude = "comments")
-public class Book {
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class BookEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,8 +67,8 @@ public class Book {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "library_id", nullable = false)
-    private Library library;
+    private LibraryEntity library;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
+    private List<CommentEntity> comments;
 }

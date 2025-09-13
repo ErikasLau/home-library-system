@@ -13,7 +13,7 @@ import java.util.UUID;
 @Table(name = "comments")
 @Data
 @ToString(exclude = {"user", "book"})
-public class Comment {
+public class CommentEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +43,6 @@ public class Comment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
+    private BookEntity book;
 }
 

@@ -1,4 +1,4 @@
-package com.myhomelibrary.library_system.domain.enums;
+package com.myhomelibrary.library_system.domains.enums;
 
 public enum LibraryPrivacyStatus {
     PRIVATE,

@@ -1,6 +1,6 @@
 package com.myhomelibrary.library_system.entities;
 
-import com.myhomelibrary.library_system.domain.enums.UserRole;
+import com.myhomelibrary.library_system.domains.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.ToString;
@@ -54,8 +54,8 @@ public class User {
     private Instant updatedAt;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Library> libraries;
+    private List<LibraryEntity> libraries;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Comment> comments;
+    private List<CommentEntity> comments;
 }
