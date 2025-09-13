@@ -1,9 +1,11 @@
 package com.myhomelibrary.library_system.services;
 
 import com.myhomelibrary.library_system.converters.BookConverter;
+import com.myhomelibrary.library_system.converters.CommentConverter;
 import com.myhomelibrary.library_system.domains.Book.Book;
 import com.myhomelibrary.library_system.domains.Book.BookRequest;
 import com.myhomelibrary.library_system.domains.Book.BookShort;
+import com.myhomelibrary.library_system.domains.Book.BookWithComments;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.BookRepository;
 import lombok.AllArgsConstructor;
@@ -23,8 +25,12 @@ public class BookService {
     private final BookRepository bookRepository;
 
     @Transactional(readOnly = true)
-    public Book getBookById(UUID id) {
-        return BookConverter.toBook(bookRepository.findBookById(id).orElseThrow(NotFoundException::new));
+    public BookWithComments getBookById(UUID id) {
+        var bookEntity = bookRepository.findBookById(id).orElseThrow(NotFoundException::new);
+        var comments = bookEntity.getComments().stream().map(CommentConverter::toComment).toList();
+        var book = BookConverter.toBook(bookEntity);
+
+        return new BookWithComments(book, comments);
     }
 
     @Transactional(readOnly = true)
@@ -35,7 +41,7 @@ public class BookService {
     }
 
     @Transactional
-    public Book updateBook(UUID id, BookRequest bookRequest) {
+    public BookWithComments updateBook(UUID id, BookRequest bookRequest) {
         var bookEntity = bookRepository.findBookById(id).orElseThrow(NotFoundException::new);
 
         bookEntity.setTitle(bookRequest.getTitle());
@@ -50,9 +56,10 @@ public class BookService {
         bookEntity.setCoverImageUrl(bookRequest.getCoverImageUrl());
 
         var savedBookEntity = bookRepository.save(bookEntity);
-        return BookConverter.toBook(savedBookEntity);
+        var comments = savedBookEntity.getComments().stream().map(CommentConverter::toComment).toList();
+        var book = BookConverter.toBook(savedBookEntity);
+        return new BookWithComments(book, comments);
     }
-
 
     @Transactional
     public UUID deleteBookById(UUID id) {
@@ -62,8 +69,8 @@ public class BookService {
     }
 
     @Transactional
-    public Book createBook(BookRequest bookRequest) {
-        var bookEntity = BookConverter.toBookEntity(bookRequest);
+    public Book createBook(BookRequest bookRequest, Long userId) {
+        var bookEntity = BookConverter.toBookEntity(bookRequest, userId);
         var savedBookEntity = bookRepository.save(bookEntity);
         return BookConverter.toBook(savedBookEntity);
     }

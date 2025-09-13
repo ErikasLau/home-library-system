@@ -6,7 +6,7 @@ import com.myhomelibrary.library_system.domains.Book.BookShort;
 import com.myhomelibrary.library_system.entities.BookEntity;
 
 public class BookConverter {
-    public static BookEntity toBookEntity(BookRequest bookRequest) {
+    public static BookEntity toBookEntity(BookRequest bookRequest, Long userId) {
         return BookEntity.builder()
                 .title(bookRequest.getTitle())
                 .author(bookRequest.getAuthor())
@@ -18,6 +18,7 @@ public class BookConverter {
                 .publisher(bookRequest.getPublisher())
                 .genre(bookRequest.getGenre())
                 .coverImageUrl(bookRequest.getCoverImageUrl())
+                .userId(userId)
                 .build();
     }
 

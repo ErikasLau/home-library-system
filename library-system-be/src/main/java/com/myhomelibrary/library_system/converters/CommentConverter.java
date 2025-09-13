@@ -4,10 +4,8 @@ import com.myhomelibrary.library_system.domains.Comment.Comment;
 import com.myhomelibrary.library_system.domains.Comment.CommentRequest;
 import com.myhomelibrary.library_system.entities.CommentEntity;
 
-import java.util.UUID;
-
 public class CommentConverter {
-    public static CommentEntity toCommentEntity(CommentRequest commentRequest, UUID bookId, UUID userId) {
+    public static CommentEntity toCommentEntity(CommentRequest commentRequest, Long bookId, Long userId) {
         return CommentEntity.builder()
                 .text(commentRequest.getText())
                 .rating(commentRequest.getRating())

@@ -1,26 +1,30 @@
 package com.myhomelibrary.library_system.domains.Book;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Data
 @Builder(toBuilder = true)
-public record Book(
-        UUID id,
-        String title,
-        String author,
-        String isbn,
-        LocalDate releaseDate,
-        String description,
-        String language,
-        Integer pages,
-        String publisher,
-        String genre,
-        String coverImageUrl,
-        Instant createdAt,
-        Instant updatedAt
-) {
-
+@NoArgsConstructor
+@AllArgsConstructor
+public class Book {
+    private UUID id;
+    private String title;
+    private String author;
+    private String isbn;
+    private LocalDate releaseDate;
+    private String description;
+    private String language;
+    private Integer pages;
+    private String publisher;
+    private String genre;
+    private String coverImageUrl;
+    private Instant createdAt;
+    private Instant updatedAt;
 }
