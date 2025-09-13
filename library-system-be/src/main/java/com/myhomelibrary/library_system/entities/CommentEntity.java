@@ -1,8 +1,7 @@
 package com.myhomelibrary.library_system.entities;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,6 +12,9 @@ import java.util.UUID;
 @Table(name = "comments")
 @Data
 @ToString(exclude = {"user", "book"})
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentEntity {
 
     @Id
@@ -37,12 +39,17 @@ public class CommentEntity {
     @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
+    @Column(name = "book_id", nullable = false)
+    private UUID bookId;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "book_id", insertable = false, updatable = false)
     private BookEntity book;
 }
-

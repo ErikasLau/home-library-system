@@ -8,13 +8,13 @@ import java.util.UUID;
 
 @Builder
 public record Library(
-         UUID id,
-         String title,
-         String description,
-         String color,
-         LibraryPrivacyStatus privacyStatus,
-         boolean isEditable,
-         Instant createdAt,
-         Instant updatedAt
+        UUID id,
+        String title,
+        String description,
+        String color,
+        LibraryPrivacyStatus privacyStatus,
+        boolean isEditable,
+        Instant createdAt,
+        Instant updatedAt
 ) {
 }
