@@ -1,5 +1,6 @@
 package com.myhomelibrary.library_system.domains.Comment;
 
+import com.myhomelibrary.library_system.domains.User.UserShort;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -11,6 +12,7 @@ public record Comment(
         String text,
         Integer rating,
         Instant createdAt,
-        Instant updatedAt
+        Instant updatedAt,
+        UserShort user
 ) {
 }

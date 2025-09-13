@@ -45,7 +45,7 @@ public class CommentEntity {
     @Column(name = "book_id", nullable = false)
     private Long bookId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private UserEntity user;
 
