@@ -1,7 +1,10 @@
 package com.myhomelibrary.library_system.domains.Book;
 
 import com.myhomelibrary.library_system.domains.Comment.Comment;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
