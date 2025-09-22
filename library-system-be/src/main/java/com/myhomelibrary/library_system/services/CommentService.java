@@ -3,17 +3,16 @@ package com.myhomelibrary.library_system.services;
 import com.myhomelibrary.library_system.converters.CommentConverter;
 import com.myhomelibrary.library_system.domains.Comment.Comment;
 import com.myhomelibrary.library_system.domains.Comment.CommentRequest;
+import com.myhomelibrary.library_system.domains.Comment.CommentUpdateRequest;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.BookRepository;
 import com.myhomelibrary.library_system.repositories.CommentRepository;
+import com.myhomelibrary.library_system.repositories.UserRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,6 +21,7 @@ import java.util.UUID;
 public class CommentService {
     private final BookRepository bookRepository;
     private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
     public Comment getCommentById(UUID id) {
@@ -29,10 +29,9 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Comment> getAllComment(int pageNumber, int pageSize, Sort sort) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-        return commentRepository.findAll(pageable)
-                .map(CommentConverter::toComment);
+    public List<Comment> getAllCommentsByBookId(UUID bookId) {
+        var bookEntity = bookRepository.findBookById(bookId).orElseThrow(NotFoundException::new);
+        return commentRepository.findAllByBookId(bookEntity.getPk()).stream().map(CommentConverter::toComment).toList();
     }
 
     @Transactional
@@ -43,19 +42,24 @@ public class CommentService {
     }
 
     @Transactional
-    public Comment createComment(CommentRequest commentRequest, UUID bookId, Long userId) {
-        var bookEntity = bookRepository.findBookById(bookId).orElseThrow(NotFoundException::new);
+    public Comment createComment(CommentRequest commentRequest, Long userId) {
+        var bookEntity = bookRepository.findBookById(commentRequest.getBookId()).orElseThrow(NotFoundException::new);
+        var userEntity = userRepository.findById(userId).orElseThrow(NotFoundException::new);
+
         var commentEntity = CommentConverter.toCommentEntity(commentRequest, bookEntity.getPk(), userId);
-        var savedCommentEntity = commentRepository.save(commentEntity);
+        commentEntity.setUser(userEntity);
+
+        var savedCommentEntity = commentRepository.saveAndFlush(commentEntity);
+
         return CommentConverter.toComment(savedCommentEntity);
     }
 
     @Transactional
-    public Comment updateComment(UUID id, CommentRequest commentRequest) {
+    public Comment updateComment(UUID id, CommentUpdateRequest commentUpdateRequest) {
         var commentEntity = commentRepository.findCommentById(id).orElseThrow(NotFoundException::new);
 
-        commentEntity.setText(commentRequest.getText());
-        commentEntity.setRating(commentRequest.getRating());
+        commentEntity.setText(commentUpdateRequest.getText());
+        commentEntity.setRating(commentUpdateRequest.getRating());
 
         var savedCommentEntity = commentRepository.save(commentEntity);
         return CommentConverter.toComment(savedCommentEntity);

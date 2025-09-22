@@ -7,9 +7,7 @@ import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +25,7 @@ public class LibraryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Library> getAllLibraries(int pageNumber, int pageSize, Sort sort) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+    public Page<Library> getAllLibraries(Pageable pageable) {
         return libraryRepository.findAll(pageable)
                 .map(LibraryConverter::toLibrary);
     }
@@ -41,7 +38,7 @@ public class LibraryService {
     }
 
     @Transactional
-    public Library createBook(LibraryRequest libraryRequest, Long userId) {
+    public Library createLibrary(LibraryRequest libraryRequest, Long userId) {
         var libraryEntity = LibraryConverter.toLibraryEntity(libraryRequest, userId);
         var savedLibraryEntity = libraryRepository.save(libraryEntity);
         return LibraryConverter.toLibrary(savedLibraryEntity);

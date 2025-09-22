@@ -5,9 +5,12 @@ import com.myhomelibrary.library_system.domains.Comment.CommentRequest;
 import com.myhomelibrary.library_system.domains.User.UserShort;
 import com.myhomelibrary.library_system.entities.CommentEntity;
 
+import java.util.UUID;
+
 public class CommentConverter {
     public static CommentEntity toCommentEntity(CommentRequest commentRequest, Long bookId, Long userId) {
         return CommentEntity.builder()
+                .id(UUID.randomUUID())
                 .text(commentRequest.getText())
                 .rating(commentRequest.getRating())
                 .userId(userId)

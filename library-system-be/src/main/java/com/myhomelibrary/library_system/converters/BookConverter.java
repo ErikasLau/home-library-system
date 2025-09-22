@@ -5,9 +5,12 @@ import com.myhomelibrary.library_system.domains.Book.BookRequest;
 import com.myhomelibrary.library_system.domains.Book.BookShort;
 import com.myhomelibrary.library_system.entities.BookEntity;
 
+import java.util.UUID;
+
 public class BookConverter {
-    public static BookEntity toBookEntity(BookRequest bookRequest, Long userId) {
+    public static BookEntity toBookEntity(BookRequest bookRequest, Long libraryId, Long userId) {
         return BookEntity.builder()
+                .id(UUID.randomUUID())
                 .title(bookRequest.getTitle())
                 .author(bookRequest.getAuthor())
                 .isbn(bookRequest.getIsbn())
@@ -18,6 +21,7 @@ public class BookConverter {
                 .publisher(bookRequest.getPublisher())
                 .genre(bookRequest.getGenre())
                 .coverImageUrl(bookRequest.getCoverImageUrl())
+                .libraryId(libraryId)
                 .userId(userId)
                 .build();
     }

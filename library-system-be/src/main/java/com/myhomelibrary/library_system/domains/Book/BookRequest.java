@@ -4,9 +4,13 @@ import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @Data
 public class BookRequest {
+
+    @NotNull(message = "Library ID cannot be null")
+    private UUID libraryId;
 
     @NotBlank(message = "Title cannot be blank")
     @Size(min = 1, max = 255, message = "Title must be between 1 and 255 characters")

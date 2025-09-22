@@ -1,8 +1,17 @@
 package com.myhomelibrary.library_system.controllers;
 
+import com.myhomelibrary.library_system.domains.Comment.Comment;
+import com.myhomelibrary.library_system.domains.Comment.CommentRequest;
+import com.myhomelibrary.library_system.domains.Comment.CommentUpdateRequest;
 import com.myhomelibrary.library_system.services.CommentService;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 import static com.myhomelibrary.library_system.controllers.CommentController.COMMENT_BASE_URL;
 
@@ -15,27 +24,32 @@ public class CommentController {
     private final CommentService commentService;
 
     @GetMapping
-    public String getLibraries() {
-        return "Hello from CommentController";
+    @Validated
+    public List<Comment> getCommentsByBookId(@RequestParam("bookId") @NotNull(message = "Book ID cannot be null") UUID bookId) {
+        return commentService.getAllCommentsByBookId(bookId);
     }
 
-    @GetMapping
-    public String getLibraryById() {
-        return "Hello from CommentController";
+    @GetMapping("/{id}")
+    public Comment getCommentById(@PathVariable UUID id) {
+        return commentService.getCommentById(id);
     }
 
     @PostMapping
-    public String createLibrary() {
-        return "Hello from CommentController";
+    @ResponseStatus(HttpStatus.CREATED)
+    public Comment createComment(@RequestBody CommentRequest commentRequest) {
+        var user = 1L;
+        return commentService.createComment(commentRequest, user);
     }
 
-    @DeleteMapping
-    public String deleteLibrary() {
-        return "Hello from CommentController";
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public UUID deleteComment(@PathVariable UUID id) {
+        return commentService.deleteCommentById(id);
     }
 
-    @PutMapping
-    public String updateLibrary() {
-        return "Hello from CommentController";
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public Comment updateComment(@PathVariable UUID id, @RequestBody CommentUpdateRequest commentUpdateRequest) {
+        return commentService.updateComment(id, commentUpdateRequest);
     }
 }

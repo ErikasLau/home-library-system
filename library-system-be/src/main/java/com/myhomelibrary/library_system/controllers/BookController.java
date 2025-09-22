@@ -1,8 +1,15 @@
 package com.myhomelibrary.library_system.controllers;
 
+import com.myhomelibrary.library_system.domains.Book.*;
 import com.myhomelibrary.library_system.services.BookService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 import static com.myhomelibrary.library_system.controllers.BookController.BOOK_BASE_URL;
 
@@ -15,27 +22,31 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
-    public String getLibraries() {
-        return "Hello from BookController";
+    public Page<BookShort> getBooks(@PageableDefault(size = 20) Pageable pageable) {
+        return bookService.getAllBooks(pageable);
     }
 
-    @GetMapping
-    public String getLibraryById() {
-        return "Hello from BookController";
+    @GetMapping("/{id}")
+    public BookWithComments getBookById(@PathVariable UUID id) {
+        return bookService.getBookById(id);
     }
 
     @PostMapping
-    public String createLibrary() {
-        return "Hello from BookController";
+    @ResponseStatus(HttpStatus.CREATED)
+    public Book createBook(@RequestBody BookRequest bookRequest) {
+        var user = 1L;
+        return bookService.createBook(bookRequest, user);
     }
 
-    @DeleteMapping
-    public String deleteLibrary() {
-        return "Hello from BookController";
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public UUID deleteBook(@PathVariable UUID id) {
+        return bookService.deleteBookById(id);
     }
 
-    @PutMapping
-    public String updateLibrary() {
-        return "Hello from BookController";
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public BookWithComments updateBook(@PathVariable UUID id, @RequestBody BookUpdateRequest bookUpdateRequest) {
+        return bookService.updateBook(id, bookUpdateRequest);
     }
 }

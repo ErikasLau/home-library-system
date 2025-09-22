@@ -2,17 +2,13 @@ package com.myhomelibrary.library_system.services;
 
 import com.myhomelibrary.library_system.converters.BookConverter;
 import com.myhomelibrary.library_system.converters.CommentConverter;
-import com.myhomelibrary.library_system.domains.Book.Book;
-import com.myhomelibrary.library_system.domains.Book.BookRequest;
-import com.myhomelibrary.library_system.domains.Book.BookShort;
-import com.myhomelibrary.library_system.domains.Book.BookWithComments;
+import com.myhomelibrary.library_system.domains.Book.*;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.BookRepository;
+import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +19,7 @@ import java.util.UUID;
 @Transactional
 public class BookService {
     private final BookRepository bookRepository;
+    private final LibraryRepository libraryRepository;
 
     @Transactional(readOnly = true)
     public BookWithComments getBookById(UUID id) {
@@ -34,26 +31,25 @@ public class BookService {
     }
 
     @Transactional(readOnly = true)
-    public Page<BookShort> getAllBooks(int pageNumber, int pageSize, Sort sort) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+    public Page<BookShort> getAllBooks(Pageable pageable) {
         return bookRepository.findAll(pageable)
                 .map(BookConverter::toBookShort);
     }
 
     @Transactional
-    public BookWithComments updateBook(UUID id, BookRequest bookRequest) {
+    public BookWithComments updateBook(UUID id, BookUpdateRequest bookUpdateRequest) {
         var bookEntity = bookRepository.findBookById(id).orElseThrow(NotFoundException::new);
 
-        bookEntity.setTitle(bookRequest.getTitle());
-        bookEntity.setAuthor(bookRequest.getAuthor());
-        bookEntity.setIsbn(bookRequest.getIsbn());
-        bookEntity.setReleaseDate(bookRequest.getReleaseDate());
-        bookEntity.setDescription(bookRequest.getDescription());
-        bookEntity.setLanguage(bookRequest.getLanguage());
-        bookEntity.setPages(bookRequest.getPages());
-        bookEntity.setPublisher(bookRequest.getPublisher());
-        bookEntity.setGenre(bookRequest.getGenre());
-        bookEntity.setCoverImageUrl(bookRequest.getCoverImageUrl());
+        bookEntity.setTitle(bookUpdateRequest.getTitle());
+        bookEntity.setAuthor(bookUpdateRequest.getAuthor());
+        bookEntity.setIsbn(bookUpdateRequest.getIsbn());
+        bookEntity.setReleaseDate(bookUpdateRequest.getReleaseDate());
+        bookEntity.setDescription(bookUpdateRequest.getDescription());
+        bookEntity.setLanguage(bookUpdateRequest.getLanguage());
+        bookEntity.setPages(bookUpdateRequest.getPages());
+        bookEntity.setPublisher(bookUpdateRequest.getPublisher());
+        bookEntity.setGenre(bookUpdateRequest.getGenre());
+        bookEntity.setCoverImageUrl(bookUpdateRequest.getCoverImageUrl());
 
         var savedBookEntity = bookRepository.save(bookEntity);
         var comments = savedBookEntity.getComments().stream().map(CommentConverter::toComment).toList();
@@ -70,7 +66,8 @@ public class BookService {
 
     @Transactional
     public Book createBook(BookRequest bookRequest, Long userId) {
-        var bookEntity = BookConverter.toBookEntity(bookRequest, userId);
+        var library = libraryRepository.findLibraryById(bookRequest.getLibraryId()).orElseThrow(NotFoundException::new);
+        var bookEntity = BookConverter.toBookEntity(bookRequest, library.getPk(), userId);
         var savedBookEntity = bookRepository.save(bookEntity);
         return BookConverter.toBook(savedBookEntity);
     }

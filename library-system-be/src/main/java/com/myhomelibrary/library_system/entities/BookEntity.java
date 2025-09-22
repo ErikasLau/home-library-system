@@ -25,7 +25,7 @@ public class BookEntity {
     private Long pk;
 
     @Column(name = "id", nullable = false, unique = true)
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     @Column(name = "title", nullable = false)
     private String title;

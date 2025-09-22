@@ -4,9 +4,12 @@ import com.myhomelibrary.library_system.domains.Library.Library;
 import com.myhomelibrary.library_system.domains.Library.LibraryRequest;
 import com.myhomelibrary.library_system.entities.LibraryEntity;
 
+import java.util.UUID;
+
 public class LibraryConverter {
     public static LibraryEntity toLibraryEntity(LibraryRequest libraryRequest, Long userId) {
         return LibraryEntity.builder()
+                .id(UUID.randomUUID())
                 .title(libraryRequest.getTitle())
                 .description(libraryRequest.getDescription())
                 .color(libraryRequest.getColor())

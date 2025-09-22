@@ -23,7 +23,7 @@ public class CommentEntity {
     private Long pk;
 
     @Column(name = "id", nullable = false, unique = true)
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     @Column(name = "text", nullable = false, length = 1000)
     private String text;

@@ -24,7 +24,7 @@ public class UserEntity {
     private Long pk;
 
     @Column(name = "id", nullable = false, unique = true)
-    private UUID id = UUID.randomUUID();
+    private UUID id;
 
     @Column(name = "name", nullable = false)
     private String name;

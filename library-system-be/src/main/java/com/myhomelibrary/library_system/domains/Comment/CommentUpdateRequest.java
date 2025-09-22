@@ -6,12 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.util.UUID;
-
 @Data
-public class CommentRequest {
-    @NotBlank(message = "Book ID cannot be blank")
-    private UUID bookId;
+public class CommentUpdateRequest {
 
     @NotBlank(message = "Comment text cannot be blank")
     @Size(max = 1000, message = "Comment text cannot exceed 1000 characters")
