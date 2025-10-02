@@ -1,4 +1,4 @@
-package com.myhomelibrary.library_system.domains.Api;
+package com.myhomelibrary.library_system.domains.api;
 
 public record Response<T>(String status, T data) {
     public static <T> Response<T> success(T data) {

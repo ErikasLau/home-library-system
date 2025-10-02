@@ -1,4 +1,4 @@
-package com.myhomelibrary.library_system.domains.User;
+package com.myhomelibrary.library_system.domains.user;
 
 import com.myhomelibrary.library_system.domains.enums.UserRole;
 import lombok.AllArgsConstructor;

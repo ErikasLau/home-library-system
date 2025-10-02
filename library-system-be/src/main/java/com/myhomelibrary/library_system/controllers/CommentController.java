@@ -1,9 +1,9 @@
 package com.myhomelibrary.library_system.controllers;
 
-import com.myhomelibrary.library_system.domains.Api.Response;
-import com.myhomelibrary.library_system.domains.Comment.Comment;
-import com.myhomelibrary.library_system.domains.Comment.CommentRequest;
-import com.myhomelibrary.library_system.domains.Comment.CommentUpdateRequest;
+import com.myhomelibrary.library_system.domains.api.Response;
+import com.myhomelibrary.library_system.domains.comment.Comment;
+import com.myhomelibrary.library_system.domains.comment.CommentRequest;
+import com.myhomelibrary.library_system.domains.comment.CommentUpdateRequest;
 import com.myhomelibrary.library_system.security.SecurityUtils;
 import com.myhomelibrary.library_system.services.CommentService;
 import jakarta.validation.Valid;

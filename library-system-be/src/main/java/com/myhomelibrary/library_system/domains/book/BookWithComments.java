@@ -1,6 +1,6 @@
-package com.myhomelibrary.library_system.domains.Book;
+package com.myhomelibrary.library_system.domains.book;
 
-import com.myhomelibrary.library_system.domains.Comment.Comment;
+import com.myhomelibrary.library_system.domains.comment.Comment;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

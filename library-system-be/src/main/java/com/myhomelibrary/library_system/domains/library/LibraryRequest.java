@@ -1,4 +1,4 @@
-package com.myhomelibrary.library_system.domains.Library;
+package com.myhomelibrary.library_system.domains.library;
 
 import com.myhomelibrary.library_system.domains.enums.LibraryPrivacyStatus;
 import jakarta.validation.constraints.NotBlank;

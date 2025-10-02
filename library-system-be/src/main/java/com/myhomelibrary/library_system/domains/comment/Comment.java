@@ -1,6 +1,6 @@
-package com.myhomelibrary.library_system.domains.Comment;
+package com.myhomelibrary.library_system.domains.comment;
 
-import com.myhomelibrary.library_system.domains.User.UserShort;
+import com.myhomelibrary.library_system.domains.user.UserShort;
 import lombok.Builder;
 
 import java.time.Instant;

@@ -1,4 +1,4 @@
-package com.myhomelibrary.library_system.domains.Book;
+package com.myhomelibrary.library_system.domains.book;
 
 import lombok.Builder;
 

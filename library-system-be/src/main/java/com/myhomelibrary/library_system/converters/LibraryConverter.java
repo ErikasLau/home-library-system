@@ -1,7 +1,7 @@
 package com.myhomelibrary.library_system.converters;
 
-import com.myhomelibrary.library_system.domains.Library.Library;
-import com.myhomelibrary.library_system.domains.Library.LibraryRequest;
+import com.myhomelibrary.library_system.domains.library.Library;
+import com.myhomelibrary.library_system.domains.library.LibraryRequest;
 import com.myhomelibrary.library_system.entities.LibraryEntity;
 
 import java.util.UUID;

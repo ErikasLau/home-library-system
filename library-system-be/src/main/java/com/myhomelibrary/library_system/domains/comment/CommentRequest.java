@@ -1,4 +1,4 @@
-package com.myhomelibrary.library_system.domains.Comment;
+package com.myhomelibrary.library_system.domains.comment;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -6,8 +6,12 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
-public class CommentUpdateRequest {
+public class CommentRequest {
+    @NotBlank(message = "Book ID cannot be blank")
+    private UUID bookId;
 
     @NotBlank(message = "Comment text cannot be blank")
     @Size(max = 1000, message = "Comment text cannot exceed 1000 characters")

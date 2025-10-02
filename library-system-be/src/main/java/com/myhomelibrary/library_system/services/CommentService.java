@@ -1,9 +1,9 @@
 package com.myhomelibrary.library_system.services;
 
 import com.myhomelibrary.library_system.converters.CommentConverter;
-import com.myhomelibrary.library_system.domains.Comment.Comment;
-import com.myhomelibrary.library_system.domains.Comment.CommentRequest;
-import com.myhomelibrary.library_system.domains.Comment.CommentUpdateRequest;
+import com.myhomelibrary.library_system.domains.comment.Comment;
+import com.myhomelibrary.library_system.domains.comment.CommentRequest;
+import com.myhomelibrary.library_system.domains.comment.CommentUpdateRequest;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.BookRepository;
 import com.myhomelibrary.library_system.repositories.CommentRepository;

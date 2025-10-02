@@ -1,7 +1,7 @@
 package com.myhomelibrary.library_system.exceptions;
 
-import com.myhomelibrary.library_system.domains.Api.Response;
-import com.myhomelibrary.library_system.domains.Api.ServerError;
+import com.myhomelibrary.library_system.domains.api.Response;
+import com.myhomelibrary.library_system.domains.api.ServerError;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ExceptionHandler;

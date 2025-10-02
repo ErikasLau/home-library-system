@@ -1,7 +1,7 @@
 package com.myhomelibrary.library_system.converters;
 
-import com.myhomelibrary.library_system.domains.User.RegistrationRequest;
-import com.myhomelibrary.library_system.domains.User.User;
+import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
+import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.domains.enums.UserRole;
 import com.myhomelibrary.library_system.entities.UserEntity;
 

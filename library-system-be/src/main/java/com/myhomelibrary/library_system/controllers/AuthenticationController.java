@@ -1,8 +1,8 @@
 package com.myhomelibrary.library_system.controllers;
 
-import com.myhomelibrary.library_system.domains.Api.Response;
-import com.myhomelibrary.library_system.domains.User.RegistrationRequest;
-import com.myhomelibrary.library_system.domains.User.User;
+import com.myhomelibrary.library_system.domains.api.Response;
+import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
+import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

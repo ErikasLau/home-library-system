@@ -1,8 +1,8 @@
 package com.myhomelibrary.library_system.converters;
 
-import com.myhomelibrary.library_system.domains.Comment.Comment;
-import com.myhomelibrary.library_system.domains.Comment.CommentRequest;
-import com.myhomelibrary.library_system.domains.User.UserShort;
+import com.myhomelibrary.library_system.domains.comment.Comment;
+import com.myhomelibrary.library_system.domains.comment.CommentRequest;
+import com.myhomelibrary.library_system.domains.user.UserShort;
 import com.myhomelibrary.library_system.entities.CommentEntity;
 
 import java.util.UUID;

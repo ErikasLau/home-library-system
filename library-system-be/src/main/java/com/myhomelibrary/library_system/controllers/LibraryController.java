@@ -1,8 +1,8 @@
 package com.myhomelibrary.library_system.controllers;
 
-import com.myhomelibrary.library_system.domains.Api.Response;
-import com.myhomelibrary.library_system.domains.Library.Library;
-import com.myhomelibrary.library_system.domains.Library.LibraryRequest;
+import com.myhomelibrary.library_system.domains.api.Response;
+import com.myhomelibrary.library_system.domains.library.Library;
+import com.myhomelibrary.library_system.domains.library.LibraryRequest;
 import com.myhomelibrary.library_system.services.LibraryService;
 import com.myhomelibrary.library_system.security.SecurityUtils;
 import lombok.AllArgsConstructor;

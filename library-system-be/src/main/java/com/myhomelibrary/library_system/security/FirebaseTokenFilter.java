@@ -4,7 +4,7 @@ package com.myhomelibrary.library_system.security;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
-import com.myhomelibrary.library_system.domains.User.AuthenticatedUser;
+import com.myhomelibrary.library_system.domains.user.AuthenticatedUser;
 import com.myhomelibrary.library_system.entities.UserEntity;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.exceptions.UnauthorizedException;
