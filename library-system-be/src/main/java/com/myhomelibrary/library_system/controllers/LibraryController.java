@@ -1,8 +1,10 @@
 package com.myhomelibrary.library_system.controllers;
 
+import com.myhomelibrary.library_system.domains.Api.Response;
 import com.myhomelibrary.library_system.domains.Library.Library;
 import com.myhomelibrary.library_system.domains.Library.LibraryRequest;
 import com.myhomelibrary.library_system.services.LibraryService;
+import com.myhomelibrary.library_system.security.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,31 +25,30 @@ public class LibraryController {
     private final LibraryService libraryService;
 
     @GetMapping
-    public Page<Library> getLibraries(@PageableDefault(size = 20) Pageable pageable) {
-        return libraryService.getAllLibraries(pageable);
+    public Response<Page<Library>> getLibraries(@PageableDefault(size = 20) Pageable pageable) {
+        return Response.success(libraryService.getAllLibraries(pageable));
     }
 
     @GetMapping("/{id}")
-    public Library getLibraryById(@PathVariable UUID id) {
-        return libraryService.getLibraryById(id);
+    public Response<Library> getLibraryById(@PathVariable UUID id) {
+        return Response.success(libraryService.getLibraryById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Library createLibrary(@RequestBody LibraryRequest libraryRequest) {
-        var user = 1L;
-        return libraryService.createLibrary(libraryRequest, user);
+    public Response<Library> createLibrary(@RequestBody LibraryRequest libraryRequest) {
+        return Response.success(libraryService.createLibrary(libraryRequest, SecurityUtils.getAuthenticatedUserPk()));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UUID deleteLibrary(@PathVariable UUID id) {
-        return libraryService.deleteLibraryById(id);
+    public Response<UUID> deleteLibrary(@PathVariable UUID id) {
+        return Response.success(libraryService.deleteLibraryById(id));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Library updateLibrary(@PathVariable UUID id, @RequestBody LibraryRequest libraryRequest) {
-        return libraryService.updateLibrary(id, libraryRequest);
+    public Response<Library> updateLibrary(@PathVariable UUID id, @RequestBody LibraryRequest libraryRequest) {
+        return Response.success(libraryService.updateLibrary(id, libraryRequest));
     }
 }

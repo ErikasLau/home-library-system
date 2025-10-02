@@ -1,6 +1,8 @@
 package com.myhomelibrary.library_system.controllers;
 
+import com.myhomelibrary.library_system.domains.Api.Response;
 import com.myhomelibrary.library_system.domains.Book.*;
+import com.myhomelibrary.library_system.security.SecurityUtils;
 import com.myhomelibrary.library_system.services.BookService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -27,26 +29,25 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
-    public BookWithComments getBookById(@PathVariable UUID id) {
-        return bookService.getBookById(id);
+    public Response<BookWithComments> getBookById(@PathVariable UUID id) {
+        return Response.success(bookService.getBookById(id));
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Book createBook(@RequestBody BookRequest bookRequest) {
-        var user = 1L;
-        return bookService.createBook(bookRequest, user);
+    public Response<Book> createBook(@RequestBody BookRequest bookRequest) {
+        return Response.success(bookService.createBook(bookRequest, SecurityUtils.getAuthenticatedUserPk()));
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public UUID deleteBook(@PathVariable UUID id) {
-        return bookService.deleteBookById(id);
+    public Response<UUID> deleteBook(@PathVariable UUID id) {
+        return Response.success(bookService.deleteBookById(id));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public BookWithComments updateBook(@PathVariable UUID id, @RequestBody BookUpdateRequest bookUpdateRequest) {
-        return bookService.updateBook(id, bookUpdateRequest);
+    public Response<BookWithComments> updateBook(@PathVariable UUID id, @RequestBody BookUpdateRequest bookUpdateRequest) {
+        return Response.success(bookService.updateBook(id, bookUpdateRequest));
     }
 }

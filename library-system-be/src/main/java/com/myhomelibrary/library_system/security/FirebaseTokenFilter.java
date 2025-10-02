@@ -4,7 +4,10 @@ package com.myhomelibrary.library_system.security;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
+import com.myhomelibrary.library_system.domains.User.AuthenticatedUser;
 import com.myhomelibrary.library_system.entities.UserEntity;
+import com.myhomelibrary.library_system.exceptions.NotFoundException;
+import com.myhomelibrary.library_system.exceptions.UnauthorizedException;
 import com.myhomelibrary.library_system.repositories.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -24,6 +27,7 @@ import java.util.Collections;
 @AllArgsConstructor
 public class FirebaseTokenFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
+    private final FirebaseAuth firebaseAuth;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,45 +40,31 @@ public class FirebaseTokenFilter extends OncePerRequestFilter {
         String idToken = authToken.substring(7);
 
         try {
-            FirebaseToken firebaseToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+            verifyToken(idToken);
+            FirebaseToken firebaseToken = verifyToken(idToken);
             String firebaseUid = firebaseToken.getUid();
-            String email = firebaseToken.getEmail();
-            String usernameFromEmail = email.substring(0, email.indexOf("@"));
-            String username = usernameFromEmail.length() > 16 ? usernameFromEmail.substring(0, 16) : usernameFromEmail;
 
-            //TODO: unauthorized
-            UserEntity appUser = userRepository.findUserById(firebaseUid).orElseThrow(() -> new RuntimeException("User not found in the database"));
+            UserEntity appUser = userRepository.findUserById(firebaseUid)
+                    .orElseThrow(() -> new NotFoundException("User not found in the database"));
+            SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + appUser.getRole().name().toUpperCase());
 
-//            UserEntity appUser = userRepository.findUserById(firebaseUid).orElseGet(() -> {
-//                UserEntity newUser = User.builder()
-//                        .id(firebaseUid)
-//                        .email(email)
-//                        .username(username)
-//                        .role(UserRole.USER)
-//                        .build();
-//
-//                return userRepository.save(newUser);
-//            });
-
-            SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + appUser.getRole().name());
-
+            AuthenticatedUser authenticatedUser = new AuthenticatedUser(appUser.getPk(), firebaseUid);
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
-                    appUser.getId(),
+                    authenticatedUser,
                     null,
                     Collections.singletonList(authority)
             );
 
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (FirebaseAuthException e) {
-            logger.warn("Firebase token validation failed: " + e.getMessage());
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
-        } catch (Exception e) {
-            logger.error("Error processing Firebase token: " + e.getMessage(), e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            return;
+            throw new UnauthorizedException();
         }
 
+
         filterChain.doFilter(request, response);
+    }
+
+    private FirebaseToken verifyToken(String idToken) throws FirebaseAuthException {
+        return firebaseAuth.verifyIdToken(idToken);
     }
 }

@@ -1,5 +1,6 @@
 package com.myhomelibrary.library_system.controllers;
 
+import com.myhomelibrary.library_system.domains.Api.Response;
 import com.myhomelibrary.library_system.domains.User.RegistrationRequest;
 import com.myhomelibrary.library_system.domains.User.User;
 import com.myhomelibrary.library_system.services.UserService;
@@ -16,7 +17,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public User register(@RequestBody RegistrationRequest registrationRequest) {
-        return userService.registerUser(registrationRequest);
+    public Response<User> register(@RequestBody RegistrationRequest registrationRequest) {
+        return Response.success(userService.registerUser(registrationRequest));
     }
 }
