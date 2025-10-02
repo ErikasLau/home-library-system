@@ -2,20 +2,21 @@ package com.myhomelibrary.library_system.entities;
 
 import com.myhomelibrary.library_system.domains.enums.UserRole;
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "users")
 @Data
 @ToString(exclude = {"libraries", "comments"})
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity {
 
     @Id
@@ -24,7 +25,7 @@ public class UserEntity {
     private Long pk;
 
     @Column(name = "id", nullable = false, unique = true)
-    private UUID id;
+    private String id;
 
     @Column(name = "name", nullable = false)
     private String name;

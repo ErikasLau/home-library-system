@@ -23,3 +23,6 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     schemas: ${SPRING_DATASOURCE_SCHEMA}
     locations: classpath:db/migration
+
+firebase:
+  service-account-key-path: classpath:firebase-adminsdk.json

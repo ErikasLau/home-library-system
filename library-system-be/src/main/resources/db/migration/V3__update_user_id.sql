@@ -1,0 +1,8 @@
+ALTER TABLE users
+    DROP COLUMN id;
+
+ALTER TABLE users
+    ADD id VARCHAR(255) NOT NULL;
+
+ALTER TABLE users
+    ADD CONSTRAINT uc_users_id UNIQUE (id);
