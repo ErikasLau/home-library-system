@@ -30,6 +30,12 @@ public class LibraryService {
                 .map(LibraryConverter::toLibrary);
     }
 
+    @Transactional(readOnly = true)
+    public Page<Library> getLibrariesByUserId(Pageable pageable, Long userPk) {
+        return libraryRepository.findAllByUserId(userPk, pageable)
+                .map(LibraryConverter::toLibrary);
+    }
+
     @Transactional
     public UUID deleteLibraryById(UUID id) {
         var library = libraryRepository.findLibraryById(id).orElseThrow(NotFoundException::new);

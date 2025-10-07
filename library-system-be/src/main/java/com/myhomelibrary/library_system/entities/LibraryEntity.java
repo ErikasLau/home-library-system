@@ -17,7 +17,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LibraryEntity {
+public class LibraryEntity implements OwnableResource {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -60,4 +60,9 @@ public class LibraryEntity {
 
     @OneToMany(mappedBy = "library", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookEntity> books;
+
+    @Override
+    public Long getOwnerId() {
+        return this.userId;
+    }
 }
