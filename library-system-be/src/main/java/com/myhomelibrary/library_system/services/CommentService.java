@@ -24,43 +24,45 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Comment getCommentById(UUID id) {
-        return CommentConverter.toComment(commentRepository.findCommentById(id).orElseThrow(NotFoundException::new));
-    }
-
-    @Transactional(readOnly = true)
-    public List<Comment> getAllCommentsByBookId(UUID bookId) {
-        var bookEntity = bookRepository.findBookById(bookId).orElseThrow(NotFoundException::new);
+    public List<Comment> getAllCommentsByLibraryAndBookId(UUID libraryId, UUID bookId) {
+        var bookEntity = bookRepository.findBookByIdAndLibrary_Id(bookId, libraryId).orElseThrow(NotFoundException::new);
         return commentRepository.findAllByBookId(bookEntity.getPk()).stream().map(CommentConverter::toComment).toList();
     }
 
-    @Transactional
-    public UUID deleteCommentById(UUID id) {
-        var comment = commentRepository.findCommentById(id).orElseThrow(NotFoundException::new);
-        commentRepository.deleteById(comment.getPk());
-        return comment.getId();
+    @Transactional(readOnly = true)
+    public Comment getCommentByIdInLibraryBook(UUID libraryId, UUID bookId, UUID commentId) {
+        var bookEntity = bookRepository.findBookByIdAndLibrary_Id(bookId, libraryId).orElseThrow(NotFoundException::new);
+        var commentEntity = commentRepository.findCommentById(commentId).orElseThrow(NotFoundException::new);
+        if (!commentEntity.getBook().getPk().equals(bookEntity.getPk())) throw new NotFoundException();
+        return CommentConverter.toComment(commentEntity);
     }
 
     @Transactional
-    public Comment createComment(CommentRequest commentRequest, Long userId) {
-        var bookEntity = bookRepository.findBookById(commentRequest.getBookId()).orElseThrow(NotFoundException::new);
+    public Comment createCommentInLibraryBook(UUID libraryId, UUID bookId, CommentRequest commentRequest, Long userId) {
+        var bookEntity = bookRepository.findBookByIdAndLibrary_Id(bookId, libraryId).orElseThrow(NotFoundException::new);
         var userEntity = userRepository.findById(userId).orElseThrow(NotFoundException::new);
-
         var commentEntity = CommentConverter.toCommentEntity(commentRequest, bookEntity.getPk(), userId);
         commentEntity.setUser(userEntity);
-
         var savedCommentEntity = commentRepository.saveAndFlush(commentEntity);
-
         return CommentConverter.toComment(savedCommentEntity);
     }
 
     @Transactional
-    public Comment updateComment(UUID id, CommentUpdateRequest commentUpdateRequest) {
-        var commentEntity = commentRepository.findCommentById(id).orElseThrow(NotFoundException::new);
+    public UUID deleteCommentByIdInLibraryBook(UUID libraryId, UUID bookId, UUID commentId) {
+        var bookEntity = bookRepository.findBookByIdAndLibrary_Id(bookId, libraryId).orElseThrow(NotFoundException::new);
+        var commentEntity = commentRepository.findCommentById(commentId).orElseThrow(NotFoundException::new);
+        if (!commentEntity.getBook().getPk().equals(bookEntity.getPk())) throw new NotFoundException();
+        commentRepository.deleteById(commentEntity.getPk());
+        return commentEntity.getId();
+    }
 
+    @Transactional
+    public Comment updateCommentInLibraryBook(UUID libraryId, UUID bookId, UUID commentId, CommentUpdateRequest commentUpdateRequest) {
+        var bookEntity = bookRepository.findBookByIdAndLibrary_Id(bookId, libraryId).orElseThrow(NotFoundException::new);
+        var commentEntity = commentRepository.findCommentById(commentId).orElseThrow(NotFoundException::new);
+        if (!commentEntity.getBook().getPk().equals(bookEntity.getPk())) throw new NotFoundException();
         commentEntity.setText(commentUpdateRequest.getText());
         commentEntity.setRating(commentUpdateRequest.getRating());
-
         var savedCommentEntity = commentRepository.save(commentEntity);
         return CommentConverter.toComment(savedCommentEntity);
     }
