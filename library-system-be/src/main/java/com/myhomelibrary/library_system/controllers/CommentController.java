@@ -25,6 +25,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    // TODO: Maybe nest books under library? e.g. /v1/library/{libraryId}/books/{bookId}/comments
     @GetMapping
     public Response<List<Comment>> getCommentsByBookId(@Valid @RequestParam("bookId") @NotNull(message = "Book ID cannot be null") UUID bookId) {
         return Response.success(commentService.getAllCommentsByBookId(bookId));

@@ -22,23 +22,22 @@ public class BookService {
     private final LibraryRepository libraryRepository;
 
     @Transactional(readOnly = true)
-    public BookWithComments getBookById(UUID id) {
-        var bookEntity = bookRepository.findBookById(id).orElseThrow(NotFoundException::new);
-        var comments = bookEntity.getComments().stream().map(CommentConverter::toComment).toList();
-        var book = BookConverter.toBook(bookEntity);
-
-        return new BookWithComments(book, comments);
-    }
-
-    @Transactional(readOnly = true)
-    public Page<BookShort> getAllBooks(Pageable pageable) {
-        return bookRepository.findAll(pageable)
+    public Page<BookShort> getAllBooksByLibraryId(UUID libraryId, Pageable pageable) {
+        return bookRepository.findAllBooksByLibrary_Id(libraryId, pageable)
                 .map(BookConverter::toBookShort);
     }
 
+    @Transactional(readOnly = true)
+    public BookWithComments getBookByIdInLibrary(UUID libraryId, UUID id) {
+        var bookEntity = bookRepository.findBookByIdAndLibrary_Id(id, libraryId).orElseThrow(NotFoundException::new);
+        var comments = bookEntity.getComments().stream().map(CommentConverter::toComment).toList();
+        var book = BookConverter.toBook(bookEntity);
+        return new BookWithComments(book, comments);
+    }
+
     @Transactional
-    public BookWithComments updateBook(UUID id, BookUpdateRequest bookUpdateRequest) {
-        var bookEntity = bookRepository.findBookById(id).orElseThrow(NotFoundException::new);
+    public BookWithComments updateBookInLibrary(UUID libraryId, UUID id, BookUpdateRequest bookUpdateRequest) {
+        var bookEntity = bookRepository.findBookByIdAndLibrary_Id(id, libraryId).orElseThrow(NotFoundException::new);
 
         bookEntity.setTitle(bookUpdateRequest.getTitle());
         bookEntity.setAuthor(bookUpdateRequest.getAuthor());
@@ -58,15 +57,15 @@ public class BookService {
     }
 
     @Transactional
-    public UUID deleteBookById(UUID id) {
-        var book = bookRepository.findBookById(id).orElseThrow(NotFoundException::new);
+    public UUID deleteBookByIdInLibrary(UUID libraryId, UUID id) {
+        var book = bookRepository.findBookByIdAndLibrary_Id(id, libraryId).orElseThrow(NotFoundException::new);
         bookRepository.deleteById(book.getPk());
         return book.getId();
     }
 
     @Transactional
-    public Book createBook(BookRequest bookRequest, Long userId) {
-        var library = libraryRepository.findLibraryById(bookRequest.getLibraryId()).orElseThrow(NotFoundException::new);
+    public Book createBookInLibrary(UUID libraryId, BookRequest bookRequest, Long userId) {
+        var library = libraryRepository.findLibraryById(libraryId).orElseThrow(NotFoundException::new);
         var bookEntity = BookConverter.toBookEntity(bookRequest, library.getPk(), userId);
         var savedBookEntity = bookRepository.save(bookEntity);
         return BookConverter.toBook(savedBookEntity);

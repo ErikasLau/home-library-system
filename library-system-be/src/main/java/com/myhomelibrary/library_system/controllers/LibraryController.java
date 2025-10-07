@@ -26,11 +26,13 @@ public class LibraryController {
 
     @GetMapping
     public Response<Page<Library>> getLibraries(@PageableDefault(size = 20) Pageable pageable) {
+        // TODO: Only return user libraries? A separate endpoint for all libraries? Admin can access all
         return Response.success(libraryService.getAllLibraries(pageable));
     }
 
     @GetMapping("/{id}")
     public Response<Library> getLibraryById(@PathVariable UUID id) {
+        // TODO: Check if user has access to this library
         return Response.success(libraryService.getLibraryById(id));
     }
 
@@ -43,12 +45,14 @@ public class LibraryController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Response<UUID> deleteLibrary(@PathVariable UUID id) {
+        // TODO: Check if user has access to delete this library
         return Response.success(libraryService.deleteLibraryById(id));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Response<Library> updateLibrary(@PathVariable UUID id, @RequestBody LibraryRequest libraryRequest) {
+        // TODO: Check if user has access to update this library. So maybe admin and the owner?
         return Response.success(libraryService.updateLibrary(id, libraryRequest));
     }
 }
