@@ -5,6 +5,10 @@ import com.myhomelibrary.library_system.domains.user.FirebaseLoginRequest;
 import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
 import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.services.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -12,19 +16,28 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
+@Tag(name = "Authentication", description = "User registration and login operations")
 public class AuthenticationController {
 
     private final UserService userService;
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Register user", description = "Registers a new user.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "User registered successfully"),
+    })
     public Response<User> register(@RequestBody RegistrationRequest registrationRequest) {
         return Response.success(userService.registerUser(registrationRequest));
     }
 
     @PostMapping("/login")
+    @Operation(summary = "Login user", description = "Authenticates a user using Firebase token.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
+    })
     public Response<String> login(@RequestBody FirebaseLoginRequest request) {
-        User user = userService.getUserByToken(request.idToken());
+        userService.getUserByToken(request.idToken());
         return Response.success(request.idToken());
     }
 }

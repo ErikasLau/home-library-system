@@ -21,7 +21,7 @@ public class ExceptionHandlers {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         Map<String, String> errorMap = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> {
-            errorMap.put(error.getField(),error.getDefaultMessage());
+            errorMap.put(error.getField(), error.getDefaultMessage());
         });
         var serverError = new ServerError("Validation Error", errorMap.toString());
         return Response.error(serverError);

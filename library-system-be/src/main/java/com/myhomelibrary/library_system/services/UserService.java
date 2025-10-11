@@ -8,7 +8,6 @@ import com.myhomelibrary.library_system.domains.enums.UserRole;
 import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
 import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.entities.UserEntity;
-import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.exceptions.ResourceAlreadyExistsException;
 import com.myhomelibrary.library_system.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
