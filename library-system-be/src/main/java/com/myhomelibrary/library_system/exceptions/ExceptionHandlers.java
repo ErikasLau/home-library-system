@@ -4,13 +4,37 @@ import com.myhomelibrary.library_system.domains.api.Response;
 import com.myhomelibrary.library_system.domains.api.ServerError;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Slf4j
 @RestControllerAdvice
 public class ExceptionHandlers {
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseBody
+    public Response<ServerError> handleValidationException(HttpServletResponse response, MethodArgumentNotValidException ex) {
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        Map<String, String> errorMap = new HashMap<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            errorMap.put(error.getField(),error.getDefaultMessage());
+        });
+        var serverError = new ServerError("Validation Error", errorMap.toString());
+        return Response.error(serverError);
+    }
+
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    @ResponseBody
+    public Response<ServerError> handleResourceAlreadyExistsException(HttpServletResponse response, ResourceAlreadyExistsException ex) {
+        response.setStatus(HttpServletResponse.SC_CONFLICT);
+        var serverError = new ServerError("Resource already exists", ex.getMessage());
+        return Response.error(serverError);
+    }
+
     @ExceptionHandler(NotFoundException.class)
     @ResponseBody
     public Response<ServerError> handleNotFoundException(HttpServletResponse response, NotFoundException ex) {

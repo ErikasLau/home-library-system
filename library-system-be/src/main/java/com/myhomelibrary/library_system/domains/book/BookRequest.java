@@ -9,9 +9,6 @@ import java.util.UUID;
 @Data
 public class BookRequest {
 
-    @NotNull(message = "Library ID cannot be null")
-    private UUID libraryId;
-
     @NotBlank(message = "Title cannot be blank")
     @Size(min = 1, max = 255, message = "Title must be between 1 and 255 characters")
     private String title;
@@ -19,7 +16,6 @@ public class BookRequest {
     @Size(max = 255, message = "Author name cannot exceed 255 characters")
     private String author;
 
-    @Pattern(regexp = "^(97([89]))?\\d{9}(\\d|X)$", message = "Invalid ISBN format")
     private String isbn;
 
     @PastOrPresent(message = "Release date must be in the past or present")

@@ -9,6 +9,7 @@ import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import com.myhomelibrary.library_system.security.SecurityUtils;
 import com.myhomelibrary.library_system.services.CommentService;
 import com.myhomelibrary.library_system.services.GenericAccessService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -40,7 +41,7 @@ public class LibraryBookCommentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Response<Comment> createComment(@PathVariable UUID libraryId, @PathVariable UUID bookId, @RequestBody CommentRequest commentRequest) {
+    public Response<Comment> createComment(@PathVariable UUID libraryId, @PathVariable UUID bookId, @Valid @RequestBody CommentRequest commentRequest) {
         genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libraryId);
         return Response.success(commentService.createCommentInLibraryBook(libraryId, bookId, commentRequest, SecurityUtils.getAuthenticatedUserPk()));
     }
@@ -54,7 +55,7 @@ public class LibraryBookCommentController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Response<Comment> updateComment(@PathVariable UUID libraryId, @PathVariable UUID bookId, @PathVariable UUID id, @RequestBody CommentUpdateRequest commentUpdateRequest) {
+    public Response<Comment> updateComment(@PathVariable UUID libraryId, @PathVariable UUID bookId, @PathVariable UUID id, @Valid @RequestBody CommentUpdateRequest commentUpdateRequest) {
         genericAccessService.assertOwnerOrAdmin(commentRepository::findCommentById, id);
         return Response.success(commentService.updateCommentInLibraryBook(libraryId, bookId, id, commentUpdateRequest));
     }

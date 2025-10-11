@@ -7,6 +7,7 @@ import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import com.myhomelibrary.library_system.security.SecurityUtils;
 import com.myhomelibrary.library_system.services.GenericAccessService;
 import com.myhomelibrary.library_system.services.LibraryService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -49,7 +50,7 @@ public class LibraryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Response<Library> createLibrary(@RequestBody LibraryRequest libraryRequest) {
+    public Response<Library> createLibrary(@Valid @RequestBody LibraryRequest libraryRequest) {
         return Response.success(libraryService.createLibrary(libraryRequest, SecurityUtils.getAuthenticatedUserPk()));
     }
 
@@ -62,7 +63,7 @@ public class LibraryController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Response<Library> updateLibrary(@PathVariable UUID id, @RequestBody LibraryRequest libraryRequest) {
+    public Response<Library> updateLibrary(@PathVariable UUID id, @Valid @RequestBody LibraryRequest libraryRequest) {
         genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, id);
         return Response.success(libraryService.updateLibrary(id, libraryRequest));
     }

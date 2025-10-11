@@ -7,6 +7,7 @@ import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import com.myhomelibrary.library_system.security.SecurityUtils;
 import com.myhomelibrary.library_system.services.BookService;
 import com.myhomelibrary.library_system.services.GenericAccessService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,7 +42,7 @@ public class LibraryBookController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Response<Book> createBook(@PathVariable UUID libraryId, @RequestBody BookRequest bookRequest) {
+    public Response<Book> createBook(@PathVariable UUID libraryId, @Valid @RequestBody BookRequest bookRequest) {
         genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libraryId);
         return Response.success(bookService.createBookInLibrary(libraryId, bookRequest, SecurityUtils.getAuthenticatedUserPk()));
     }
@@ -55,7 +56,7 @@ public class LibraryBookController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Response<BookWithComments> updateBook(@PathVariable UUID libraryId, @PathVariable UUID id, @RequestBody BookUpdateRequest bookUpdateRequest) {
+    public Response<BookWithComments> updateBook(@PathVariable UUID libraryId, @PathVariable UUID id, @Valid @RequestBody BookUpdateRequest bookUpdateRequest) {
         genericAccessService.assertOwnerOrAdmin(bookRepository::findBookById, id);
         return Response.success(bookService.updateBookInLibrary(libraryId, id, bookUpdateRequest));
     }

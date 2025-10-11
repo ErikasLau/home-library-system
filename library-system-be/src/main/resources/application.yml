@@ -1,4 +1,9 @@
 spring:
+  security:
+    user:
+      name: user
+      password: d821eed2-1033-4572-a3b8-edd4fcb531a9
+
   application:
     name: library-system
 

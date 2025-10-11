@@ -9,6 +9,7 @@ import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
 import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.entities.UserEntity;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
+import com.myhomelibrary.library_system.exceptions.ResourceAlreadyExistsException;
 import com.myhomelibrary.library_system.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,9 @@ public class UserService {
     public User registerUser(RegistrationRequest registrationRequest) {
         User user = toUser(registrationRequest, UserRole.MEMBER);
 
-        userRepository.findUserByEmail(user.getEmail()).orElseThrow(() -> new NotFoundException("User with this email already exists"));
+        if (userRepository.findUserByEmail(user.getEmail()).isPresent()) {
+            throw new ResourceAlreadyExistsException("User with this email already exists");
+        }
 
         try {
             UserRecord.CreateRequest request = new UserRecord.CreateRequest()
