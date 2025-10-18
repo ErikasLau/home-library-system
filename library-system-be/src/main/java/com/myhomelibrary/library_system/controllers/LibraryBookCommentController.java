@@ -48,7 +48,7 @@ public class LibraryBookCommentController {
             @ApiResponse(responseCode = "200", description = "Comment retrieved successfully"),
     })
     public Response<Comment> getCommentById(@PathVariable UUID libraryId, @PathVariable UUID bookId, @PathVariable UUID id) {
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libraryId);
+        genericAccessService.assertOwnerOrModeratorOrAdmin(libraryRepository::findLibraryById, libraryId);
         return Response.success(commentService.getCommentByIdInLibraryBook(libraryId, bookId, id));
     }
 
@@ -70,7 +70,7 @@ public class LibraryBookCommentController {
             @ApiResponse(responseCode = "200", description = "Comment deleted successfully"),
     })
     public UUID deleteComment(@PathVariable UUID libraryId, @PathVariable UUID bookId, @PathVariable UUID id) {
-        genericAccessService.assertOwnerOrAdmin(commentRepository::findCommentById, id);
+        genericAccessService.assertOwnerOrModeratorOrAdmin(commentRepository::findCommentById, id);
         return commentService.deleteCommentByIdInLibraryBook(libraryId, bookId, id);
     }
 

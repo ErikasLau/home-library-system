@@ -20,39 +20,30 @@ import java.util.UUID;
 public class BookService {
     private final BookRepository bookRepository;
     private final LibraryRepository libraryRepository;
+    private final BookConverter bookConverter;
+    private final CommentConverter commentConverter;
 
     @Transactional(readOnly = true)
     public Page<BookShort> getAllBooksByLibraryId(UUID libraryId, Pageable pageable) {
         return bookRepository.findAllBooksByLibrary_Id(libraryId, pageable)
-                .map(BookConverter::toBookShort);
+                .map(bookConverter::toBookShort);
     }
 
     @Transactional(readOnly = true)
     public BookWithComments getBookByIdInLibrary(UUID libraryId, UUID id) {
         var bookEntity = bookRepository.findBookByIdAndLibrary_Id(id, libraryId).orElseThrow(NotFoundException::new);
-        var comments = bookEntity.getComments().stream().map(CommentConverter::toComment).toList();
-        var book = BookConverter.toBook(bookEntity);
+        var comments = bookEntity.getComments().stream().map(commentConverter::toComment).toList();
+        var book = bookConverter.toBook(bookEntity);
         return new BookWithComments(book, comments);
     }
 
     @Transactional
     public BookWithComments updateBookInLibrary(UUID libraryId, UUID id, BookUpdateRequest bookUpdateRequest) {
         var bookEntity = bookRepository.findBookByIdAndLibrary_Id(id, libraryId).orElseThrow(NotFoundException::new);
-
-        bookEntity.setTitle(bookUpdateRequest.getTitle());
-        bookEntity.setAuthor(bookUpdateRequest.getAuthor());
-        bookEntity.setIsbn(bookUpdateRequest.getIsbn());
-        bookEntity.setReleaseDate(bookUpdateRequest.getReleaseDate());
-        bookEntity.setDescription(bookUpdateRequest.getDescription());
-        bookEntity.setLanguage(bookUpdateRequest.getLanguage());
-        bookEntity.setPages(bookUpdateRequest.getPages());
-        bookEntity.setPublisher(bookUpdateRequest.getPublisher());
-        bookEntity.setGenre(bookUpdateRequest.getGenre());
-        bookEntity.setCoverImageUrl(bookUpdateRequest.getCoverImageUrl());
-
+        bookConverter.updateBookEntity(bookUpdateRequest, bookEntity);
         var savedBookEntity = bookRepository.save(bookEntity);
-        var comments = savedBookEntity.getComments().stream().map(CommentConverter::toComment).toList();
-        var book = BookConverter.toBook(savedBookEntity);
+        var comments = savedBookEntity.getComments().stream().map(commentConverter::toComment).toList();
+        var book = bookConverter.toBook(savedBookEntity);
         return new BookWithComments(book, comments);
     }
 
@@ -66,8 +57,8 @@ public class BookService {
     @Transactional
     public Book createBookInLibrary(UUID libraryId, BookRequest bookRequest, Long userId) {
         var library = libraryRepository.findLibraryById(libraryId).orElseThrow(NotFoundException::new);
-        var bookEntity = BookConverter.toBookEntity(bookRequest, library.getPk(), userId);
+        var bookEntity = bookConverter.toBookEntity(bookRequest, library.getPk(), userId);
         var savedBookEntity = bookRepository.save(bookEntity);
-        return BookConverter.toBook(savedBookEntity);
+        return bookConverter.toBook(savedBookEntity);
     }
 }

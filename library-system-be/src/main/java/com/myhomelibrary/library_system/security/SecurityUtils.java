@@ -26,4 +26,12 @@ public class SecurityUtils {
                 .map(GrantedAuthority::getAuthority)
                 .anyMatch(auth -> auth.equals("ROLE_ADMIN") || auth.equals("ADMIN"));
     }
+
+    public static boolean isCurrentUserModerator() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null) return false;
+        return authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .anyMatch(auth -> auth.equals("ROLE_MODERATOR") || auth.equals("MODERATOR"));
+    }
 }

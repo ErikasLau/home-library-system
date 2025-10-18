@@ -3,57 +3,30 @@ package com.myhomelibrary.library_system.converters;
 import com.myhomelibrary.library_system.domains.book.Book;
 import com.myhomelibrary.library_system.domains.book.BookRequest;
 import com.myhomelibrary.library_system.domains.book.BookShort;
+import com.myhomelibrary.library_system.domains.book.BookUpdateRequest;
 import com.myhomelibrary.library_system.entities.BookEntity;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-import java.util.UUID;
+@Mapper(componentModel = "spring")
+public interface BookConverter {
+    @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "userId", source = "userId")
+    @Mapping(target = "libraryId", source = "libraryId")
+    BookEntity toBookEntity(BookRequest bookRequest, Long libraryId, Long userId);
 
-public class BookConverter {
-    public static BookEntity toBookEntity(BookRequest bookRequest, Long libraryId, Long userId) {
-        return BookEntity.builder()
-                .id(UUID.randomUUID())
-                .title(bookRequest.getTitle())
-                .author(bookRequest.getAuthor())
-                .isbn(bookRequest.getIsbn())
-                .releaseDate(bookRequest.getReleaseDate())
-                .description(bookRequest.getDescription())
-                .language(bookRequest.getLanguage())
-                .pages(bookRequest.getPages())
-                .publisher(bookRequest.getPublisher())
-                .genre(bookRequest.getGenre())
-                .coverImageUrl(bookRequest.getCoverImageUrl())
-                .libraryId(libraryId)
-                .userId(userId)
-                .build();
-    }
+    Book toBook(BookEntity bookEntity);
 
-    public static Book toBook(BookEntity bookEntity) {
-        return Book.builder()
-                .id(bookEntity.getId())
-                .title(bookEntity.getTitle())
-                .author(bookEntity.getAuthor())
-                .isbn(bookEntity.getIsbn())
-                .releaseDate(bookEntity.getReleaseDate())
-                .description(bookEntity.getDescription())
-                .language(bookEntity.getLanguage())
-                .pages(bookEntity.getPages())
-                .publisher(bookEntity.getPublisher())
-                .genre(bookEntity.getGenre())
-                .coverImageUrl(bookEntity.getCoverImageUrl())
-                .createdAt(bookEntity.getCreatedAt())
-                .updatedAt(bookEntity.getUpdatedAt())
-                .build();
-    }
+    BookShort toBookShort(BookEntity bookEntity);
 
-    public static BookShort toBookShort(BookEntity bookEntity) {
-        return BookShort.builder()
-                .id(bookEntity.getId())
-                .title(bookEntity.getTitle())
-                .author(bookEntity.getAuthor())
-                .releaseDate(bookEntity.getReleaseDate())
-                .language(bookEntity.getLanguage())
-                .coverImageUrl(bookEntity.getCoverImageUrl())
-                .createdAt(bookEntity.getCreatedAt())
-                .updatedAt(bookEntity.getUpdatedAt())
-                .build();
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "pk", ignore = true)
+    @Mapping(target = "libraryId", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "library", ignore = true)
+    @Mapping(target = "comments", ignore = true)
+    void updateBookEntity(BookUpdateRequest bookUpdateRequest, @MappingTarget BookEntity bookEntity);
 }

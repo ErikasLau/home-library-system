@@ -1,6 +1,7 @@
 package com.myhomelibrary.library_system.services;
 
 import com.myhomelibrary.library_system.entities.OwnableResource;
+import com.myhomelibrary.library_system.exceptions.ForbiddenException;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.exceptions.UnauthorizedException;
 import com.myhomelibrary.library_system.security.SecurityUtils;
@@ -21,7 +22,7 @@ public class GenericAccessService {
 
     public void assertAdmin() {
         if (!SecurityUtils.isCurrentUserAdmin()) {
-            throw new UnauthorizedException();
+            throw new ForbiddenException();
         }
     }
 
@@ -32,7 +33,18 @@ public class GenericAccessService {
         boolean isOwner = resource.getOwnerId().equals(currentUserPk);
         boolean isAdmin = SecurityUtils.isCurrentUserAdmin();
         if (!isOwner && !isAdmin) {
-            throw new UnauthorizedException();
+            throw new ForbiddenException();
+        }
+    }
+
+    public <T extends OwnableResource> void assertOwnerOrModeratorOrAdmin(ResourceFinder<T> finder, UUID resourceId) {
+        Long currentUserPk = SecurityUtils.getAuthenticatedUserPk();
+        T resource = finder.find(resourceId)
+                .orElseThrow(NotFoundException::new);
+        boolean isOwner = resource.getOwnerId().equals(currentUserPk);
+        boolean isModeratorOrAdmin = SecurityUtils.isCurrentUserModerator() || SecurityUtils.isCurrentUserAdmin();
+        if (!isOwner && !isModeratorOrAdmin) {
+            throw new ForbiddenException();
         }
     }
 }

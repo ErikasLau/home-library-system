@@ -18,22 +18,23 @@ import java.util.UUID;
 @Transactional
 public class LibraryService {
     private final LibraryRepository libraryRepository;
+    private final LibraryConverter libraryConverter;
 
     @Transactional(readOnly = true)
     public Library getLibraryById(UUID id) {
-        return LibraryConverter.toLibrary(libraryRepository.findLibraryById(id).orElseThrow(NotFoundException::new));
+        return libraryConverter.toLibrary(libraryRepository.findLibraryById(id).orElseThrow(NotFoundException::new));
     }
 
     @Transactional(readOnly = true)
     public Page<Library> getAllLibraries(Pageable pageable) {
         return libraryRepository.findAll(pageable)
-                .map(LibraryConverter::toLibrary);
+                .map(libraryConverter::toLibrary);
     }
 
     @Transactional(readOnly = true)
     public Page<Library> getLibrariesByUserId(Pageable pageable, Long userPk) {
         return libraryRepository.findAllByUserId(userPk, pageable)
-                .map(LibraryConverter::toLibrary);
+                .map(libraryConverter::toLibrary);
     }
 
     @Transactional
@@ -45,22 +46,16 @@ public class LibraryService {
 
     @Transactional
     public Library createLibrary(LibraryRequest libraryRequest, Long userId) {
-        var libraryEntity = LibraryConverter.toLibraryEntity(libraryRequest, userId);
+        var libraryEntity = libraryConverter.toLibraryEntity(libraryRequest, userId);
         var savedLibraryEntity = libraryRepository.save(libraryEntity);
-        return LibraryConverter.toLibrary(savedLibraryEntity);
+        return libraryConverter.toLibrary(savedLibraryEntity);
     }
 
     @Transactional
     public Library updateLibrary(UUID id, LibraryRequest libraryRequest) {
         var libraryEntity = libraryRepository.findLibraryById(id).orElseThrow(NotFoundException::new);
-
-        libraryEntity.setTitle(libraryRequest.getTitle());
-        libraryEntity.setDescription(libraryRequest.getDescription());
-        libraryEntity.setColor(libraryRequest.getColor());
-        libraryEntity.setPrivacyStatus(libraryRequest.getPrivacyStatus());
-        libraryEntity.setEditable(libraryRequest.isEditable());
-
+        libraryConverter.updateLibraryEntity(libraryRequest, libraryEntity);
         var savedLibraryEntity = libraryRepository.save(libraryEntity);
-        return LibraryConverter.toLibrary(savedLibraryEntity);
+        return libraryConverter.toLibrary(savedLibraryEntity);
     }
 }

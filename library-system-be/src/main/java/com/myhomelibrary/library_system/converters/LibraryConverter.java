@@ -3,32 +3,23 @@ package com.myhomelibrary.library_system.converters;
 import com.myhomelibrary.library_system.domains.library.Library;
 import com.myhomelibrary.library_system.domains.library.LibraryRequest;
 import com.myhomelibrary.library_system.entities.LibraryEntity;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
-import java.util.UUID;
+@Mapper(componentModel = "spring")
+public interface LibraryConverter {
+    @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())")
+    @Mapping(target = "userId", source = "userId")
+    LibraryEntity toLibraryEntity(LibraryRequest libraryRequest, Long userId);
 
-public class LibraryConverter {
-    public static LibraryEntity toLibraryEntity(LibraryRequest libraryRequest, Long userId) {
-        return LibraryEntity.builder()
-                .id(UUID.randomUUID())
-                .title(libraryRequest.getTitle())
-                .description(libraryRequest.getDescription())
-                .color(libraryRequest.getColor())
-                .privacyStatus(libraryRequest.getPrivacyStatus())
-                .isEditable(libraryRequest.isEditable())
-                .userId(userId)
-                .build();
-    }
+    Library toLibrary(LibraryEntity libraryEntity);
 
-    public static Library toLibrary(LibraryEntity libraryEntity) {
-        return Library.builder()
-                .id(libraryEntity.getId())
-                .title(libraryEntity.getTitle())
-                .description(libraryEntity.getDescription())
-                .color(libraryEntity.getColor())
-                .privacyStatus(libraryEntity.getPrivacyStatus())
-                .isEditable(libraryEntity.isEditable())
-                .createdAt(libraryEntity.getCreatedAt())
-                .updatedAt(libraryEntity.getUpdatedAt())
-                .build();
-    }
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "pk", ignore = true)
+    @Mapping(target = "userId", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "books", ignore = true)
+    void updateLibraryEntity(LibraryRequest libraryRequest, @MappingTarget LibraryEntity libraryEntity);
 }

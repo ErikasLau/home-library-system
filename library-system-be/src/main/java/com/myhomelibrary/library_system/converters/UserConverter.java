@@ -4,40 +4,15 @@ import com.myhomelibrary.library_system.domains.enums.UserRole;
 import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
 import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.entities.UserEntity;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
-public class UserConverter {
-    public static User toUser(UserEntity userEntity) {
-        return User.builder()
-                .id(userEntity.getId())
-                .name(userEntity.getName())
-                .surname(userEntity.getSurname())
-                .username(userEntity.getUsername())
-                .email(userEntity.getEmail())
-                .dateOfBirth(userEntity.getDateOfBirth())
-                .role(userEntity.getRole())
-                .build();
-    }
+@Mapper(componentModel = "spring")
+public interface UserConverter {
+    User toUser(UserEntity userEntity);
 
-    public static UserEntity toUserEntity(User user) {
-        return UserEntity.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .surname(user.getSurname())
-                .username(user.getUsername())
-                .email(user.getEmail())
-                .dateOfBirth(user.getDateOfBirth())
-                .role(user.getRole())
-                .build();
-    }
+    UserEntity toUserEntity(User user);
 
-    public static User toUser(RegistrationRequest registrationRequest, UserRole role) {
-        return User.builder()
-                .email(registrationRequest.email())
-                .username(registrationRequest.username())
-                .name(registrationRequest.name())
-                .surname(registrationRequest.surname())
-                .dateOfBirth(registrationRequest.dateOfBirth())
-                .role(role)
-                .build();
-    }
+    @Mapping(target = "role", source = "role")
+    User toUser(RegistrationRequest registrationRequest, UserRole role);
 }
