@@ -1,196 +1,234 @@
+import axios, { AxiosError } from 'axios';
+import type { InternalAxiosRequestConfig } from 'axios';
 import type { ApiError } from '../types/api';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const TOKEN_KEY = 'auth_token';
 
-export const tokenManager = {
-  get: (): string | null => {
-    return localStorage.getItem(TOKEN_KEY);
-  },
-  
-  set: (token: string): void => {
-    localStorage.setItem(TOKEN_KEY, token);
-  },
-  
-  remove: (): void => {
-    localStorage.removeItem(TOKEN_KEY);
-  },
-  
-  isAuthenticated: (): boolean => {
-    return !!localStorage.getItem(TOKEN_KEY);
+// In-memory fallback for environments without localStorage
+class TokenStorage {
+  private inMemoryToken: string | null = null;
+  private hasLocalStorage: boolean;
+
+  constructor() {
+    this.hasLocalStorage = this.checkLocalStorage();
   }
-};
 
-interface RequestConfig extends RequestInit {
-  params?: Record<string, string | number | boolean | undefined>;
-}
-
-function createHeaders(includeAuth: boolean = true): HeadersInit {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
-
-  if (includeAuth) {
-    const token = tokenManager.get();
-    if (token) {
-      headers['Authorization'] = `Bearer ${token}`;
+  private checkLocalStorage(): boolean {
+    try {
+      const test = '__storage_test__';
+      localStorage.setItem(test, test);
+      localStorage.removeItem(test);
+      return true;
+    } catch {
+      return false;
     }
   }
 
-  return headers;
-}
-
-// Build URL with query parameters
-function buildUrl(endpoint: string, params?: Record<string, string | number | boolean | undefined>): string {
-  const url = new URL(`${API_BASE_URL}${endpoint}`);
-  
-  if (params) {
-    Object.entries(params).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
-        url.searchParams.append(key, String(value));
-      }
-    });
+  get(): string | null {
+    if (this.hasLocalStorage) {
+      return localStorage.getItem(TOKEN_KEY);
+    }
+    return this.inMemoryToken;
   }
-  
-  return url.toString();
+
+  set(token: string): void {
+    if (this.hasLocalStorage) {
+      localStorage.setItem(TOKEN_KEY, token);
+    }
+    this.inMemoryToken = token;
+  }
+
+  remove(): void {
+    if (this.hasLocalStorage) {
+      localStorage.removeItem(TOKEN_KEY);
+    }
+    this.inMemoryToken = null;
+  }
+
+  isAuthenticated(): boolean {
+    return !!this.get();
+  }
 }
 
-// Handle API response
-async function handleResponse<T>(response: Response): Promise<T> {
-  if (!response.ok) {
-    const error: ApiError = {
+export const tokenManager = new TokenStorage();
+
+// Define error response interface for better type safety
+interface ErrorResponse {
+  status?: string;
+  message?: string;
+  error?: {
+    code: string;
+    message: string;
+    details?: string;
+  };
+  data?: {
+    title?: string;
+    details?: string;
+    errors?: Array<{ field: string; message: string }>;
+  };
+  errors?: Array<{ field: string; message: string }>;
+  details?: string;
+}
+
+// Create axios instance
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000, // 30 seconds
+  withCredentials: true, // Enable if backend uses cookies
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// List of endpoints that don't require authentication
+const PUBLIC_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/forgot-password'];
+
+// Helper to check if endpoint is public
+const isPublicEndpoint = (url?: string): boolean => {
+  if (!url) return false;
+  return PUBLIC_ENDPOINTS.some(endpoint => url.includes(endpoint));
+};
+
+// Request interceptor to add token to all requests
+axiosInstance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    const token = tokenManager.get();
+    
+    // Add token to request if it exists and endpoint is not public
+    if (token && !isPublicEndpoint(config.url)) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor to handle errors
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error: AxiosError<ErrorResponse>) => {
+    const apiError: ApiError = {
       message: 'An error occurred',
-      status: response.status,
+      status: error.response?.status || 500,
     };
 
-    try {
-      const errorData = await response.json();
-      console.log('Error response data:', errorData);
-      
-      // Handle error format: { status: "Error", data: { title, details } }
-      if (errorData.data) {
-        if (errorData.data.title) {
-          error.message = errorData.data.title;
-        }
-        if (errorData.data.details) {
-          error.details = errorData.data.details;
-        }
-        // Handle validation errors in data
-        if (errorData.data.errors) {
-          error.errors = errorData.data.errors;
-        }
+    // Handle 401 Unauthorized - clear token and redirect
+    if (error.response?.status === 401) {
+      tokenManager.remove();
+      // Only redirect if not already on login page
+      if (!window.location.pathname.includes('/login')) {
+        window.location.href = '/login';
       }
-      // Fallback: Extract message from various possible locations
-      else if (errorData.message) {
-        error.message = errorData.message;
-      } else if (errorData.error?.message) {
-        error.message = errorData.error.message;
-      }
-      
-      // Extract error object if present
-      if (errorData.error) {
-        error.error = errorData.error;
-      }
-      
-      // Extract validation errors if present at root level
-      if (errorData.errors) {
-        error.errors = errorData.errors;
-      }
-      
-      // Extract details if present at root level
-      if (errorData.details) {
-        error.details = errorData.details;
-      }
-    } catch (e) {
-      console.error('Failed to parse error response:', e);
-      // If parsing fails, use status text
-      error.message = response.statusText || error.message;
+      apiError.message = 'Session expired. Please login again.';
+      return Promise.reject(apiError);
     }
 
-    throw error;
+    // Parse error response
+    if (error.response?.data) {
+      const errorData = error.response.data;
+      
+      // Priority 1: Check nested data field
+      if (errorData.data) {
+        if (errorData.data.title) {
+          apiError.message = errorData.data.title;
+        }
+        if (errorData.data.details) {
+          apiError.details = errorData.data.details;
+        }
+        if (errorData.data.errors) {
+          apiError.errors = errorData.data.errors;
+        }
+      }
+      
+      // Priority 2: Check error field
+      if (errorData.error) {
+        apiError.error = errorData.error;
+        if (!apiError.message || apiError.message === 'An error occurred') {
+          apiError.message = errorData.error.message;
+        }
+      }
+      
+      // Priority 3: Check direct message
+      if (errorData.message && (!apiError.message || apiError.message === 'An error occurred')) {
+        apiError.message = errorData.message;
+      }
+      
+      // Priority 4: Check direct errors array
+      if (errorData.errors && !apiError.errors) {
+        apiError.errors = errorData.errors;
+      }
+      
+      // Priority 5: Check direct details
+      if (errorData.details && !apiError.details) {
+        apiError.details = errorData.details;
+      }
+    } else if (error.message) {
+      // Network error or other non-response error
+      if (error.message === 'Network Error') {
+        apiError.message = 'Unable to connect to server. Please check your internet connection.';
+      } else if (error.code === 'ECONNABORTED') {
+        apiError.message = 'Request timeout. Please try again.';
+      } else {
+        apiError.message = error.message;
+      }
+    }
+
+    return Promise.reject(apiError);
   }
+);
 
-  // Handle 204 No Content
-  if (response.status === 204) {
-    return {} as T;
-  }
-
-  try {
-    return await response.json();
-  } catch {
-    return {} as T;
-  }
-}
-
-// Generic API request function
-export async function apiRequest<T>(
-  endpoint: string,
-  config: RequestConfig = {}
-): Promise<T> {
-  const { params, ...fetchConfig } = config;
-  const url = buildUrl(endpoint, params);
-  
-  // Check if auth should be included - default to true unless headers are explicitly empty
-  const includeAuth = !fetchConfig.headers || Object.keys(fetchConfig.headers).length > 0;
-  
-  const response = await fetch(url, {
-    ...fetchConfig,
-    headers: includeAuth ? {
-      ...createHeaders(true),
-      ...fetchConfig.headers,
-    } : {
-      'Content-Type': 'application/json',
-      ...fetchConfig.headers,
-    },
-  });
-
-  return handleResponse<T>(response);
-}
-
-// Convenience methods
+// Convenience methods using axios
 export const apiClient = {
-  get: <T>(endpoint: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> => {
-    return apiRequest<T>(endpoint, { method: 'GET', params });
+  get: async <T>(
+    endpoint: string, 
+    params?: Record<string, string | number | boolean | undefined>
+  ): Promise<T> => {
+    const response = await axiosInstance.get<T>(endpoint, { params });
+    return response.data;
   },
 
-  post: <T>(endpoint: string, data?: unknown, params?: Record<string, string | number | boolean | undefined>): Promise<T> => {
-    return apiRequest<T>(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-      params,
-    });
+  post: async <T>(
+    endpoint: string, 
+    data?: unknown, 
+    params?: Record<string, string | number | boolean | undefined>
+  ): Promise<T> => {
+    const response = await axiosInstance.post<T>(endpoint, data, { params });
+    return response.data;
   },
 
-  put: <T>(endpoint: string, data?: unknown, params?: Record<string, string | number | boolean | undefined>): Promise<T> => {
-    return apiRequest<T>(endpoint, {
-      method: 'PUT',
-      body: JSON.stringify(data),
-      params,
-    });
+  put: async <T>(
+    endpoint: string, 
+    data?: unknown, 
+    params?: Record<string, string | number | boolean | undefined>
+  ): Promise<T> => {
+    const response = await axiosInstance.put<T>(endpoint, data, { params });
+    return response.data;
   },
 
-  delete: <T>(endpoint: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> => {
-    return apiRequest<T>(endpoint, {
-      method: 'DELETE',
-      params,
-    });
+  patch: async <T>(
+    endpoint: string, 
+    data?: unknown, 
+    params?: Record<string, string | number | boolean | undefined>
+  ): Promise<T> => {
+    const response = await axiosInstance.patch<T>(endpoint, data, { params });
+    return response.data;
   },
 
-  // For endpoints that don't require authentication
-  publicGet: <T>(endpoint: string, params?: Record<string, string | number | boolean | undefined>): Promise<T> => {
-    return apiRequest<T>(endpoint, {
-      method: 'GET',
-      params,
-      headers: {} as HeadersInit,
-    });
-  },
-
-  publicPost: <T>(endpoint: string, data?: unknown): Promise<T> => {
-    return apiRequest<T>(endpoint, {
-      method: 'POST',
-      body: JSON.stringify(data),
-      headers: {} as HeadersInit,
-    });
+  delete: async <T>(
+    endpoint: string, 
+    params?: Record<string, string | number | boolean | undefined>
+  ): Promise<T> => {
+    const response = await axiosInstance.delete<T>(endpoint, { params });
+    return response.data;
   },
 };
+
+// Export axios instance for advanced use cases
+export { axiosInstance };

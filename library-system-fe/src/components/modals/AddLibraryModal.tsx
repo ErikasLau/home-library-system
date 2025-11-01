@@ -6,6 +6,7 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { toast } from 'sonner';
+import { libraryService } from '../../services';
 import type { User } from '../../types/api';
 
 interface AddLibraryModalProps {
@@ -13,12 +14,13 @@ interface AddLibraryModalProps {
   user: User | null;
 }
 
-export default function AddLibraryModal({ onClose, user }: AddLibraryModalProps) {
+export default function AddLibraryModal({ onClose }: AddLibraryModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [privacyStatus, setPrivacyStatus] = useState<'PUBLIC' | 'PRIVATE'>('PUBLIC');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!name.trim()) {
@@ -26,16 +28,23 @@ export default function AddLibraryModal({ onClose, user }: AddLibraryModalProps)
       return;
     }
 
-    // Mock API call
-    const newLibrary = {
-      name,
-      description,
-      privacyStatus,
-      owner: user,
-    };
+    try {
+      setIsSubmitting(true);
 
-    toast.success('Library created successfully!');
-    onClose();
+      // Call the API to create the library
+      await libraryService.createLibrary({
+        name: name.trim(),
+        description: description.trim() || undefined,
+      });
+
+      toast.success('Library created successfully!');
+      onClose();
+    } catch (err) {
+      console.error('Error creating library:', err);
+      toast.error(err instanceof Error ? err.message : 'Failed to create library');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -99,7 +108,7 @@ export default function AddLibraryModal({ onClose, user }: AddLibraryModalProps)
             </Label>
             <RadioGroup
               value={privacyStatus}
-              onValueChange={(value: any) => setPrivacyStatus(value as 'PUBLIC' | 'PRIVATE')}
+              onValueChange={(value) => setPrivacyStatus(value as 'PUBLIC' | 'PRIVATE')}
               className="space-y-3"
             >
               <div className="flex items-center space-x-3 p-3 rounded-lg border border-border hover:border-primary hover:bg-accent/30 transition-all duration-300 cursor-pointer">
@@ -131,14 +140,16 @@ export default function AddLibraryModal({ onClose, user }: AddLibraryModalProps)
               onClick={onClose}
               variant="outline"
               className="flex-1 transition-all duration-300 hover:scale-105"
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button
               type="submit"
               className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 transition-all duration-300 hover:shadow-lg hover:scale-105"
+              disabled={isSubmitting}
             >
-              Create Library
+              {isSubmitting ? 'Creating...' : 'Create Library'}
             </Button>
           </div>
         </form>

@@ -1,53 +1,89 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router';
-import { Plus, Lock, Globe } from 'lucide-react';
+import { Plus, Lock, Globe, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import LibraryCard from '../components/cards/LibraryCard';
 import AddLibraryModal from '../components/modals/AddLibraryModal';
 import { useAuth } from '../hooks/useAuth';
+import { libraryService } from '../services';
 import type { Library } from '../types';
-
-// Mock data
-const mockLibraries: Library[] = [
-  {
-    id: 1,
-    name: 'Science Fiction Collection',
-    description: 'My favorite sci-fi novels and series',
-    privacyStatus: 'PUBLIC',
-    bookCount: 24,
-    owner: { id: 1, name: 'Erikas Lau' },
-  },
-  {
-    id: 2,
-    name: 'Classic Literature',
-    description: 'Timeless classics from around the world',
-    privacyStatus: 'PUBLIC',
-    bookCount: 18,
-    owner: { id: 1, name: 'Erikas Lau' },
-  },
-  {
-    id: 3,
-    name: 'Personal Reading List',
-    description: 'Books I want to read this year',
-    privacyStatus: 'PRIVATE',
-    bookCount: 12,
-    owner: { id: 1, name: 'Erikas Lau' },
-  },
-];
+import type { Library as ApiLibrary } from '../types/api';
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [filter, setFilter] = useState<'ALL' | 'PUBLIC' | 'PRIVATE'>('ALL');
   const [showAddLibraryModal, setShowAddLibraryModal] = useState(false);
+  const [libraries, setLibraries] = useState<Library[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
-  const filteredLibraries = mockLibraries.filter((lib) => {
+  // Fetch libraries from API
+  const fetchLibraries = useCallback(async () => {
+    // Check if user is authenticated before making the request
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Fetch user's libraries with pagination
+      const response = await libraryService.getUserLibraries({
+        page,
+        size: 10
+      });
+
+      // Transform API libraries to local format
+      const transformedLibraries: Library[] = response.content.map((apiLib: ApiLibrary) => ({
+        id: parseInt(apiLib.id) || 0,
+        name: apiLib.name,
+        description: apiLib.description || '',
+        privacyStatus: 'PUBLIC' as const, // Default since API doesn't have this field
+        bookCount: 0, // This would need to be fetched separately or added to API
+        owner: {
+          id: typeof user?.id === 'number' ? user.id : 0,
+          name: user?.name || 'Unknown'
+        }
+      }));
+
+      setLibraries(transformedLibraries);
+      setTotalPages(response.totalPages);
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load libraries';
+      
+      // Check if it's an authentication error
+      const apiError = err as { status?: number };
+      if (apiError?.status === 401) {
+        setError('Authentication failed. Please log in again.');
+      } else {
+        setError(errorMessage);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [page, user]);
+
+  useEffect(() => {
+    fetchLibraries();
+  }, [fetchLibraries]);
+
+  const filteredLibraries = libraries.filter((lib) => {
     if (filter === 'ALL') return true;
     return lib.privacyStatus === filter;
   });
 
   const handleAddLibrary = () => {
     setShowAddLibraryModal(true);
+  };
+
+  const handleLibraryAdded = () => {
+    // Refresh libraries after adding a new one
+    fetchLibraries();
   };
 
   const handleAddBook = (library: Library) => {
@@ -113,8 +149,32 @@ export default function HomePage() {
         </button>
       </div>
 
+      {/* Loading State */}
+      {loading && (
+        <div className="flex items-center justify-center py-16">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <span className="ml-3 text-muted-foreground">Loading libraries...</span>
+        </div>
+      )}
+
+      {/* Error State */}
+      {error && !loading && (
+        <div className="bg-destructive/10 border border-destructive text-destructive px-4 py-3 rounded-lg">
+          <p className="font-semibold">Error loading libraries</p>
+          <p className="text-sm">{error}</p>
+          <Button
+            onClick={fetchLibraries}
+            variant="outline"
+            size="sm"
+            className="mt-3"
+          >
+            Try Again
+          </Button>
+        </div>
+      )}
+
       {/* Libraries Grid */}
-      {filteredLibraries.length > 0 ? (
+      {!loading && !error && filteredLibraries.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredLibraries.map((library) => (
             <LibraryCard
@@ -126,17 +186,50 @@ export default function HomePage() {
             />
           ))}
         </div>
-      ) : (
+      )}
+
+      {/* Empty State */}
+      {!loading && !error && filteredLibraries.length === 0 && (
         <div className="text-center py-16 bg-muted/30 rounded-xl border-2 border-dashed border-border">
           <p className="text-muted-foreground">
-            No libraries found. Create your first library to get started!
+            {filter === 'ALL' 
+              ? 'No libraries found. Create your first library to get started!'
+              : `No ${filter.toLowerCase()} libraries found.`}
           </p>
+        </div>
+      )}
+
+      {/* Pagination */}
+      {!loading && !error && totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 pt-4">
+          <Button
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            variant="outline"
+            size="sm"
+          >
+            Previous
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            Page {page + 1} of {totalPages}
+          </span>
+          <Button
+            onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+            disabled={page >= totalPages - 1}
+            variant="outline"
+            size="sm"
+          >
+            Next
+          </Button>
         </div>
       )}
 
       {showAddLibraryModal && (
         <AddLibraryModal
-          onClose={() => setShowAddLibraryModal(false)}
+          onClose={() => {
+            setShowAddLibraryModal(false);
+            handleLibraryAdded();
+          }}
           user={user}
         />
       )}
