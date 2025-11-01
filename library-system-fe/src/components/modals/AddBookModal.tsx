@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { X, BookOpen, User, Hash, Calendar, FileText, Image } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
 import { toast } from 'sonner';
-import type { Library } from '../App';
+import type { Library } from '../../types';
 
 interface AddBookModalProps {
   library: Library;

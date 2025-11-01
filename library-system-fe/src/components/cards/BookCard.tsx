@@ -1,6 +1,6 @@
 import { MessageCircle } from 'lucide-react';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import type { Book } from '../App';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
+import type { Book } from '../../types';
 
 interface BookCardProps {
   book: Book;

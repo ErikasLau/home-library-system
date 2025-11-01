@@ -1,7 +1,7 @@
 import { Lock, Globe, BookOpen, Plus, Eye, User } from 'lucide-react';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import type { Library, User as UserType } from '../App';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import type { Library, User as UserType } from '../../types';
 
 interface LibraryCardProps {
   library: Library;

@@ -1,8 +1,8 @@
 import { ArrowLeft, Plus, Lock, Globe, BookOpen } from 'lucide-react';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import type { Library, User, Book } from '../App';
+import { Button } from '../ui/button';
+import { Badge } from '../ui/badge';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
+import type { Library, User, Book } from '../../types';
 
 interface BooksListPageProps {
   library: Library;

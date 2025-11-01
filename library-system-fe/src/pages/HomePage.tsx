@@ -1,14 +1,14 @@
 import { useState } from 'react';
+import { useNavigate, useOutletContext } from 'react-router';
 import { Plus, Lock, Globe } from 'lucide-react';
-import { Button } from './ui/button';
-import LibraryCard from './LibraryCard';
-import type { User, Library } from '../App';
+import { Button } from '../components/ui/button';
+import LibraryCard from '../components/cards/LibraryCard';
+import AddLibraryModal from '../components/modals/AddLibraryModal';
+import type { User, Library } from '../types';
 
-interface LibraryGridProps {
+interface OutletContext {
   user: User | null;
-  onAddLibrary: () => void;
-  onAddBook: (library: Library) => void;
-  onViewLibrary: (library: Library) => void;
+  onLoginRequired: () => void;
 }
 
 // Mock data
@@ -39,13 +39,36 @@ const mockLibraries: Library[] = [
   },
 ];
 
-export default function LibraryGrid({ user, onAddLibrary, onAddBook, onViewLibrary }: LibraryGridProps) {
+export default function HomePage() {
+  const navigate = useNavigate();
+  const { user, onLoginRequired } = useOutletContext<OutletContext>();
   const [filter, setFilter] = useState<'ALL' | 'PUBLIC' | 'PRIVATE'>('ALL');
+  const [showAddLibraryModal, setShowAddLibraryModal] = useState(false);
 
   const filteredLibraries = mockLibraries.filter((lib) => {
     if (filter === 'ALL') return true;
     return lib.privacyStatus === filter;
   });
+
+  const handleAddLibrary = () => {
+    if (!user) {
+      onLoginRequired();
+      return;
+    }
+    setShowAddLibraryModal(true);
+  };
+
+  const handleAddBook = (library: Library) => {
+    if (!user) {
+      onLoginRequired();
+      return;
+    }
+    navigate(`/library/${library.id}/add-book`);
+  };
+
+  const handleViewLibrary = (library: Library) => {
+    navigate(`/library/${library.id}`);
+  };
 
   return (
     <div className="space-y-8">
@@ -58,7 +81,7 @@ export default function LibraryGrid({ user, onAddLibrary, onAddBook, onViewLibra
           </p>
         </div>
         <Button
-          onClick={onAddLibrary}
+          onClick={handleAddLibrary}
           className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105"
         >
           <Plus className="w-4 h-4 mr-2" />
@@ -110,8 +133,8 @@ export default function LibraryGrid({ user, onAddLibrary, onAddBook, onViewLibra
               key={library.id}
               library={library}
               user={user}
-              onAddBook={onAddBook}
-              onViewLibrary={onViewLibrary}
+              onAddBook={handleAddBook}
+              onViewLibrary={handleViewLibrary}
             />
           ))}
         </div>
@@ -121,6 +144,13 @@ export default function LibraryGrid({ user, onAddLibrary, onAddBook, onViewLibra
             No libraries found. Create your first library to get started!
           </p>
         </div>
+      )}
+
+      {showAddLibraryModal && (
+        <AddLibraryModal
+          onClose={() => setShowAddLibraryModal(false)}
+          user={user}
+        />
       )}
     </div>
   );

@@ -1,16 +1,29 @@
 import { useState } from 'react';
+import { useParams, useNavigate, useOutletContext } from 'react-router';
 import { ArrowLeft, Calendar, Hash, MessageCircle, Send, Trash2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Button } from '../components/ui/button';
+import { Textarea } from '../components/ui/textarea';
+import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { toast } from 'sonner';
-import type { Book, User, Comment } from '../App';
+import type { Book, User, Comment } from '../types';
 
-interface BookDetailsPageProps {
-  book: Book;
+interface OutletContext {
   user: User | null;
-  onBack: () => void;
+  onLoginRequired: () => void;
 }
+
+// Mock book data
+const mockBook: Book = {
+  id: 1,
+  title: 'Dune',
+  author: 'Frank Herbert',
+  isbn: '0441013597',
+  publishedYear: 1965,
+  description: 'A stunning blend of adventure and mysticism, environmentalism and politics. Set in the distant future amidst a sprawling feudal interstellar empire, Dune tells the story of young Paul Atreides as he and his family relocate to the desert planet Arrakis, the only source of the most valuable substance in the universe.',
+  coverUrl: 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400&h=600&fit=crop',
+  commentsCount: 5,
+  libraryId: 1,
+};
 
 // Mock comments
 const mockComments: Comment[] = [
@@ -37,15 +50,21 @@ const mockComments: Comment[] = [
   },
 ];
 
-export default function BookDetailsPage({ book, user, onBack }: BookDetailsPageProps) {
+export default function BookDetailsPage() {
+  const { libraryId, bookId } = useParams();
+  const navigate = useNavigate();
+  const { user, onLoginRequired } = useOutletContext<OutletContext>();
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [newComment, setNewComment] = useState('');
+
+  // In a real app, fetch book data based on bookId
+  const book = mockBook;
 
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
-      toast.error('Please login to comment');
+      onLoginRequired();
       return;
     }
 
@@ -87,7 +106,7 @@ export default function BookDetailsPage({ book, user, onBack }: BookDetailsPageP
     <div className="max-w-6xl mx-auto space-y-8 animate-in fade-in duration-500">
       {/* Back Button */}
       <button
-        onClick={onBack}
+        onClick={() => navigate(`/library/${libraryId}`)}
         className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 hover:translate-x-[-4px] group"
       >
         <ArrowLeft className="w-5 h-5 transition-transform group-hover:scale-110" />

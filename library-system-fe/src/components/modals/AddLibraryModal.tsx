@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { X, Library, Lock, Globe, FileText } from 'lucide-react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Textarea } from './ui/textarea';
-import { RadioGroup, RadioGroupItem } from './ui/radio-group';
+import { Button } from '../ui/button';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Textarea } from '../ui/textarea';
+import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { toast } from 'sonner';
-import type { User } from '../App';
+import type { User } from '../../types';
 
 interface AddLibraryModalProps {
   onClose: () => void;

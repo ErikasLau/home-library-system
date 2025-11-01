@@ -1,25 +1,25 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { Menu, X, Library, User, LogOut, LogIn } from 'lucide-react';
-import { Button } from './ui/button';
-import type { User as UserType } from '../App';
+import { Button } from '../ui/button';
+import type { User as UserType } from '../../types';
 
 interface HeaderProps {
   user: UserType | null;
   onLogin: () => void;
   onLogout: () => void;
-  onLogoClick: () => void;
 }
 
-export default function Header({ user, onLogin, onLogout, onLogoClick }: HeaderProps) {
+export default function Header({ user, onLogin, onLogout }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-primary via-primary/95 to-primary/90 text-primary-foreground shadow-lg border-b-4 border-primary-foreground/10">
+    <header className="sticky top-0 z-50 bg-linear-to-r from-primary via-primary/95 to-primary/90 text-primary-foreground shadow-lg border-b-4 border-primary-foreground/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
-          <button
-            onClick={onLogoClick}
+          <Link
+            to="/"
             className="flex items-center gap-3 transition-transform hover:scale-105 duration-300"
           >
             <div className="bg-primary-foreground text-primary p-2 rounded-xl shadow-md">
@@ -28,7 +28,7 @@ export default function Header({ user, onLogin, onLogout, onLogoClick }: HeaderP
             <span className="font-['Merriweather',serif] tracking-tight">
               My Home Library
             </span>
-          </button>
+          </Link>
 
           {/* User Actions - Desktop */}
           <div className="hidden md:flex items-center gap-3">

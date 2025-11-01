@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { X, Calendar, Hash, MessageCircle, Send, Trash2 } from 'lucide-react';
-import { Button } from './ui/button';
-import { Textarea } from './ui/textarea';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { Button } from '../ui/button';
+import { Textarea } from '../ui/textarea';
+import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { toast } from 'sonner';
-import type { Book, User, Comment } from '../App';
+import type { Book, User, Comment } from '../../types';
 
 interface BookDetailsModalProps {
   book: Book;
