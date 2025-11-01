@@ -1,16 +1,15 @@
 package com.myhomelibrary.library_system.domains.comment;
 
 import jakarta.validation.constraints.*;
-import lombok.Data;
 
-@Data
-public class CommentRequest {
-    @NotBlank(message = "Comment text cannot be blank")
-    @Size(max = 1000, message = "Comment text cannot exceed 1000 characters")
-    private String text;
+public record CommentRequest(
+        @NotBlank(message = "Comment text cannot be blank")
+        @Size(max = 1000, message = "Comment text cannot exceed 1000 characters")
+        String text,
 
-    @NotNull(message = "Rating cannot be null")
-    @Min(value = 1, message = "Rating must be at least 1")
-    @Max(value = 5, message = "Rating cannot exceed 5")
-    private Integer rating;
+        @NotNull(message = "Rating cannot be null")
+        @Min(value = 1, message = "Rating must be at least 1")
+        @Max(value = 5, message = "Rating cannot exceed 5")
+        Integer rating
+) {
 }

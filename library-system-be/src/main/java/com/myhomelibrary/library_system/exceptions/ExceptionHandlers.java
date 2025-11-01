@@ -6,6 +6,7 @@ import com.myhomelibrary.library_system.domains.api.ServerError;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -96,6 +97,22 @@ public class ExceptionHandlers {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         var serverError = new ServerError("Authentication Error", ex.getMessage());
         return Response.error(serverError);
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    @ResponseBody
+    public Response<ServerError> handleAuthenticationException(HttpServletResponse response, AuthenticationException ex) {
+        log.error("Authentication Error: {}", ex.getMessage(), ex);
+
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        var serverError = new ServerError("Authentication Failed", ex.getMessage());
+        return Response.error(serverError);
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    @ResponseBody
+    public void handleAuthorizationDeniedException(HttpServletResponse response, AuthorizationDeniedException ex) {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     }
 
     @ExceptionHandler(Exception.class)

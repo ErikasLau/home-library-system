@@ -1,5 +1,6 @@
 package com.myhomelibrary.library_system.domains.library;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.myhomelibrary.library_system.domains.enums.LibraryPrivacyStatus;
 import lombok.Builder;
 
@@ -14,7 +15,9 @@ public record Library(
         String color,
         LibraryPrivacyStatus privacyStatus,
         boolean isEditable,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
         Instant createdAt,
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
         Instant updatedAt
 ) {
 }

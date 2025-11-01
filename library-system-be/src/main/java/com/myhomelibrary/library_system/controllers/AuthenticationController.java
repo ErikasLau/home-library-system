@@ -1,7 +1,8 @@
 package com.myhomelibrary.library_system.controllers;
 
 import com.myhomelibrary.library_system.domains.api.Response;
-import com.myhomelibrary.library_system.domains.user.FirebaseLoginRequest;
+import com.myhomelibrary.library_system.domains.user.LoginRequest;
+import com.myhomelibrary.library_system.domains.user.LoginResponse;
 import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
 import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.services.UserService;
@@ -32,12 +33,17 @@ public class AuthenticationController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Login user", description = "Authenticates a user using Firebase token.")
+    @Operation(summary = "Login user", description = "Authenticates a user with email and password, returns JWT token with custom claims.")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "User authenticated successfully"),
+            @ApiResponse(responseCode = "200", description = "User authenticated successfully")
     })
-    public Response<String> login(@RequestBody FirebaseLoginRequest request) {
-        userService.getUserByToken(request.idToken());
-        return Response.success(request.idToken());
+    public Response<LoginResponse> login(@RequestBody LoginRequest request) {
+        String tokenWithCustomClaims = userService.authenticateWithEmailAndPassword(
+                request.email(),
+                request.password()
+        );
+
+        LoginResponse response = new LoginResponse(tokenWithCustomClaims);
+        return Response.success(response);
     }
 }

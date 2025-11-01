@@ -11,6 +11,11 @@ public class FirebaseServiceException extends RuntimeException {
         this.firebaseAuthException = cause;
     }
 
+    public FirebaseServiceException(String message) {
+        super(message);
+        this.firebaseAuthException = null;
+    }
+
     public FirebaseAuthException getFirebaseAuthException() {
         return firebaseAuthException;
     }
