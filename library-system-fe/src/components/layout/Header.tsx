@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Menu, X, Library, User, LogOut, LogIn } from 'lucide-react';
+import { Menu, X, Library, User, LogOut } from 'lucide-react';
 import { Button } from '../ui/button';
-import type { User as UserType } from '../../types';
+import { useAuth } from '../../hooks/useAuth';
 
-interface HeaderProps {
-  user: UserType | null;
-  onLogin: () => void;
-  onLogout: () => void;
-}
-
-export default function Header({ user, onLogin, onLogout }: HeaderProps) {
+export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+    setMobileMenuOpen(false);
+  };
 
   return (
-    <header className="sticky top-0 z-50 bg-linear-to-r from-primary via-primary/95 to-primary/90 text-primary-foreground shadow-lg border-b-4 border-primary-foreground/10">
+    <header className="sticky bg-white top-0 z-50 bg-linear-to-r from-primary via-primary/95 to-primary/90 text-primary-foreground shadow-lg border-b-4 border-primary-foreground/10">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -32,31 +32,18 @@ export default function Header({ user, onLogin, onLogout }: HeaderProps) {
 
           {/* User Actions - Desktop */}
           <div className="hidden md:flex items-center gap-3">
-            {user ? (
-              <>
-                <div className="flex items-center gap-2 px-4 py-2 bg-primary-foreground/10 rounded-lg">
-                  <User className="w-4 h-4" />
-                  <span className="text-sm">{user.name}</span>
-                </div>
-                <Button
-                  onClick={onLogout}
-                  variant="outline"
-                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0 transition-all duration-300 hover:shadow-lg"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <Button
-                onClick={onLogin}
-                variant="outline"
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0 transition-all duration-300 hover:shadow-lg"
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Login
-              </Button>
-            )}
+            <div className="flex items-center gap-2 px-4 py-2 bg-primary-foreground/10 rounded-lg">
+              <User className="w-4 h-4" />
+              <span className="text-sm">{user?.name || user?.username}</span>
+            </div>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0 transition-all duration-300 hover:shadow-lg"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -80,37 +67,18 @@ export default function Header({ user, onLogin, onLogout }: HeaderProps) {
           }`}
         >
           <nav className="flex flex-col gap-2 pt-2 border-t border-primary-foreground/10">
-            {user ? (
-              <>
-                <div className="flex items-center gap-2 px-4 py-3 bg-primary-foreground/10 rounded-lg">
-                  <User className="w-4 h-4" />
-                  <span className="text-sm">{user.name}</span>
-                </div>
-                <Button
-                  onClick={() => {
-                    onLogout();
-                    setMobileMenuOpen(false);
-                  }}
-                  variant="outline"
-                  className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0"
-                >
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Logout
-                </Button>
-              </>
-            ) : (
-              <Button
-                onClick={() => {
-                  onLogin();
-                  setMobileMenuOpen(false);
-                }}
-                variant="outline"
-                className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0"
-              >
-                <LogIn className="w-4 h-4 mr-2" />
-                Login
-              </Button>
-            )}
+            <div className="flex items-center gap-2 px-4 py-3 bg-primary-foreground/10 rounded-lg">
+              <User className="w-4 h-4" />
+              <span className="text-sm">{user?.name || user?.username}</span>
+            </div>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
           </nav>
         </div>
       </div>

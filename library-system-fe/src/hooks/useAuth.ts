@@ -7,7 +7,7 @@ import type { LoginRequest, RegistrationRequest, ApiError } from '../types/api';
 
 export function useAuth() {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ApiError | null>(null);
   const { user, setUser, clearUser, isAuthenticated } = useUser();
 
   const login = useCallback(async (data: LoginRequest) => {
@@ -16,14 +16,11 @@ export function useAuth() {
     
     try {
       const result = await authService.login(data);
-      // Store user in context
-      // Note: If your backend returns user info with login, update this
-      // For now, you might need to make a separate API call to get user details
       setUser(result.user);
       return true;
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Login failed');
+      setError(apiError);
       return false;
     } finally {
       setIsLoading(false);
@@ -35,21 +32,21 @@ export function useAuth() {
     setError(null);
     
     try {
-      // Register returns the user
-      const newUser = await authService.register(data);
+      // Register the user
+      await authService.register(data);
       
       // After registration, automatically log in
-      await authService.login({
+      const result = await authService.login({
         email: data.email,
         password: data.password,
       });
       
-      // Store the registered user
-      setUser(newUser);
+      // Store the user from login response
+      setUser(result.user);
       return true;
     } catch (err) {
       const apiError = err as ApiError;
-      setError(apiError.message || 'Registration failed');
+      setError(apiError); // Store the full error object
       return false;
     } finally {
       setIsLoading(false);

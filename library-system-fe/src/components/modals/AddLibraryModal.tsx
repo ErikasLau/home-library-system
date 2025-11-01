@@ -6,7 +6,7 @@ import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
 import { toast } from 'sonner';
-import type { User } from '../../types';
+import type { User } from '../../types/api';
 
 interface AddLibraryModalProps {
   onClose: () => void;
@@ -40,7 +40,7 @@ export default function AddLibraryModal({ onClose, user }: AddLibraryModalProps)
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-accent to-accent/80 text-accent-foreground p-6">
           <div className="flex items-center justify-between">

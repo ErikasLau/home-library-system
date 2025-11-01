@@ -18,7 +18,6 @@ const USER_STORAGE_KEY = 'auth_user';
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUserState] = useState<User | null>(() => {
-    // Initialize from localStorage on mount
     try {
       const storedUser = localStorage.getItem(USER_STORAGE_KEY);
       return storedUser ? JSON.parse(storedUser) : null;

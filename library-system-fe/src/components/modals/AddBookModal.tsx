@@ -45,7 +45,7 @@ export default function AddBookModal({ library, onClose }: AddBookModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300 overflow-y-auto">
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-2xl my-8 overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl my-8 overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-secondary to-secondary/80 text-secondary-foreground p-6">
           <div className="flex items-center justify-between">

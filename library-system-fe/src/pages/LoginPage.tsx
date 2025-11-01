@@ -1,18 +1,15 @@
-import { useState } from 'react';
-import { X, Mail, Lock, User, Calendar } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { toast } from 'sonner';
-import { useAuth } from '../../hooks/useAuth';
-import { formatApiError } from '../../utils/errorHandler';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router';
+import { Mail, Lock, User, Calendar } from 'lucide-react';
+import { Button } from '../components/ui/button';
+import { Input } from '../components/ui/input';
+import { Label } from '../components/ui/label';
+import { toast, Toaster } from 'sonner';
+import { useAuth } from '../hooks/useAuth';
 
-interface LoginModalProps {
-  onClose: () => void;
-}
-
-export default function LoginModal({ onClose }: LoginModalProps) {
-  const { login, register, isLoading } = useAuth();
+export default function LoginPage() {
+  const navigate = useNavigate();
+  const { login, register, isLoading, isAuthenticated, error } = useAuth();
   const [isRegister, setIsRegister] = useState(false);
   
   // Form fields
@@ -23,8 +20,30 @@ export default function LoginModal({ onClose }: LoginModalProps) {
   const [username, setUsername] = useState('');
   const [dateOfBirth, setDateOfBirth] = useState('');
 
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Show error toast when error changes
+  useEffect(() => {
+    if (error) {
+      const errorMessage = error.message || 'An error occurred';
+      
+      toast.error(errorMessage, {
+        duration: 5000, // Show for 5 seconds
+        style: {
+          whiteSpace: 'pre-line', // Preserve line breaks
+        },
+      });
+    }
+  }, [error]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Form submitted:', { email, isRegister });
     
     // Basic validation
     if (isRegister) {
@@ -39,52 +58,49 @@ export default function LoginModal({ onClose }: LoginModalProps) {
       }
     }
 
-    try {
-      if (isRegister) {
-        const success = await register({
-          email,
-          password,
-          name,
-          surname,
-          username,
-          dateOfBirth,
-        });
-        
-        if (success) {
-          toast.success('Account created and logged in successfully!');
-          onClose();
-        }
-      } else {
-        const success = await login({ email, password });
-        
-        if (success) {
-          toast.success('Logged in successfully!');
-          onClose();
-        }
+    if (isRegister) {
+      const success = await register({
+        email,
+        password,
+        name,
+        surname,
+        username,
+        dateOfBirth,
+      });
+      
+      console.log('Register success:', success);
+      
+      if (success) {
+        toast.success('Account created and logged in successfully!');
+        navigate('/', { replace: true });
       }
-    } catch (err) {
-      toast.error(formatApiError(err));
+      // Error is handled by useEffect watching the error state
+    } else {
+      const success = await login({ email, password });
+      
+      console.log('Login success:', success);
+      
+      if (success) {
+        toast.success('Logged in successfully!');
+        navigate('/', { replace: true });
+      }
+      // Error is handled by useEffect watching the error state
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary/10 via-background to-secondary/10">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Modal Header */}
-        <div className="bg-linear-to-r from-primary to-primary/90 text-primary-foreground p-6">
+        <div className="bg-gradient-to-r from-primary to-primary/90 text-primary-foreground p-6">
           <div className="flex items-center justify-between">
-            <h2>{isRegister ? 'Create Account' : 'Welcome Back'}</h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-primary-foreground/10 transition-all duration-300 hover:rotate-90"
-              aria-label="Close"
-            >
-              <X className="w-5 h-5" />
-            </button>
+            <div>
+              <h2 className="text-2xl font-bold">{isRegister ? 'Create Account' : 'Welcome Back'}</h2>
+              <p className="text-primary-foreground/80 text-sm mt-2">
+                {isRegister ? 'Join our community of book lovers' : 'Sign in to manage your libraries'}
+              </p>
+            </div>
           </div>
-          <p className="text-primary-foreground/80 text-sm mt-2">
-            {isRegister ? 'Join our community of book lovers' : 'Sign in to manage your libraries'}
-          </p>
         </div>
 
         {/* Modal Body */}
@@ -215,6 +231,9 @@ export default function LoginModal({ onClose }: LoginModalProps) {
           </div>
         </form>
       </div>
+      
+      {/* Toast notifications */}
+      <Toaster />
     </div>
   );
 }

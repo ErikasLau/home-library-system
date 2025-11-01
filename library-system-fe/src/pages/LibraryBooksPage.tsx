@@ -1,16 +1,11 @@
 import { useState } from 'react';
-import { useParams, useNavigate, useOutletContext } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft, Plus, Lock, Globe, BookOpen } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import AddBookModal from '../components/modals/AddBookModal';
-import type { Library, User, Book } from '../types';
-
-interface OutletContext {
-  user: User | null;
-  onLoginRequired: () => void;
-}
+import type { Library, Book } from '../types';
 
 // Mock library data
 const mockLibrary: Library = {
@@ -95,7 +90,6 @@ const mockBooks: Book[] = [
 export default function LibraryBooksPage() {
   const { libraryId } = useParams();
   const navigate = useNavigate();
-  const { user, onLoginRequired } = useOutletContext<OutletContext>();
   const [showAddBookModal, setShowAddBookModal] = useState(false);
 
   // In a real app, fetch library data based on libraryId
@@ -105,10 +99,6 @@ export default function LibraryBooksPage() {
   const isPrivate = library.privacyStatus === 'PRIVATE';
 
   const handleAddBook = () => {
-    if (!user) {
-      onLoginRequired();
-      return;
-    }
     setShowAddBookModal(true);
   };
 

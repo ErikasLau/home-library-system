@@ -66,22 +66,44 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
     try {
       const errorData = await response.json();
-      error.success = errorData.success;
+      console.log('Error response data:', errorData);
       
-      // Handle new error format
+      // Handle error format: { status: "Error", data: { title, details } }
+      if (errorData.data) {
+        if (errorData.data.title) {
+          error.message = errorData.data.title;
+        }
+        if (errorData.data.details) {
+          error.details = errorData.data.details;
+        }
+        // Handle validation errors in data
+        if (errorData.data.errors) {
+          error.errors = errorData.data.errors;
+        }
+      }
+      // Fallback: Extract message from various possible locations
+      else if (errorData.message) {
+        error.message = errorData.message;
+      } else if (errorData.error?.message) {
+        error.message = errorData.error.message;
+      }
+      
+      // Extract error object if present
       if (errorData.error) {
         error.error = errorData.error;
-        error.message = errorData.error.message || error.message;
-      } else if (errorData.errors) {
-        // Handle validation errors array
-        error.errors = errorData.errors;
-        error.message = errorData.errors.map((e: { field: string; message: string }) => 
-          `${e.field}: ${e.message}`
-        ).join(', ');
-      } else {
-        error.message = errorData.message || error.message;
       }
-    } catch {
+      
+      // Extract validation errors if present at root level
+      if (errorData.errors) {
+        error.errors = errorData.errors;
+      }
+      
+      // Extract details if present at root level
+      if (errorData.details) {
+        error.details = errorData.details;
+      }
+    } catch (e) {
+      console.error('Failed to parse error response:', e);
       // If parsing fails, use status text
       error.message = response.statusText || error.message;
     }

@@ -8,6 +8,7 @@ import com.myhomelibrary.library_system.converters.UserConverter;
 import com.myhomelibrary.library_system.domains.enums.UserRole;
 import com.myhomelibrary.library_system.domains.firebase.FirebaseSignInResponse;
 import com.myhomelibrary.library_system.domains.firebase.UserCustomClaims;
+import com.myhomelibrary.library_system.domains.user.LoginResponse;
 import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
 import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.exceptions.FirebaseServiceException;
@@ -53,7 +54,7 @@ public class UserService {
         });
     }
 
-    public String authenticateWithEmailAndPassword(final String email, final String password) {
+    public LoginResponse authenticateWithEmailAndPassword(final String email, final String password) {
         FirebaseSignInResponse signInResponse = firebaseAuthService.signInWithEmailAndPassword(email, password);
         try {
             FirebaseToken decodedToken = firebaseAuth.verifyIdToken(signInResponse.idToken());
@@ -64,7 +65,8 @@ public class UserService {
                         log.error("User retrieval failed for UID: {}", firebaseUid);
                         return new FirebaseServiceException("There was an error during user retrieval");
                     });
-            return createFirebaseCustomClaims(user);
+            String token = createFirebaseCustomClaims(user);
+            return new LoginResponse(token, user);
         } catch (FirebaseAuthException e) {
             log.error("Token verification failed: {}", e.getMessage(), e);
             throw new FirebaseServiceException("Token verification failed", e);

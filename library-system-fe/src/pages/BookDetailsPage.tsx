@@ -1,16 +1,12 @@
 import { useState } from 'react';
-import { useParams, useNavigate, useOutletContext } from 'react-router';
+import { useParams, useNavigate } from 'react-router';
 import { ArrowLeft, Calendar, Hash, MessageCircle, Send, Trash2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { Textarea } from '../components/ui/textarea';
 import { ImageWithFallback } from '../components/figma/ImageWithFallback';
 import { toast } from 'sonner';
-import type { Book, User, Comment } from '../types';
-
-interface OutletContext {
-  user: User | null;
-  onLoginRequired: () => void;
-}
+import { useAuth } from '../hooks/useAuth';
+import type { Book, Comment } from '../types';
 
 // Mock book data
 const mockBook: Book = {
@@ -53,7 +49,7 @@ const mockComments: Comment[] = [
 export default function BookDetailsPage() {
   const { libraryId, bookId } = useParams();
   const navigate = useNavigate();
-  const { user, onLoginRequired } = useOutletContext<OutletContext>();
+  const { user, isAuthenticated } = useAuth();
   const [comments, setComments] = useState<Comment[]>(mockComments);
   const [newComment, setNewComment] = useState('');
 
@@ -63,8 +59,8 @@ export default function BookDetailsPage() {
   const handleAddComment = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!user) {
-      onLoginRequired();
+    if (!isAuthenticated || !user) {
+      toast.error('Please login to comment');
       return;
     }
 
@@ -76,7 +72,7 @@ export default function BookDetailsPage() {
     const comment: Comment = {
       id: Date.now(),
       text: newComment,
-      author: { id: user.id, name: user.name },
+      author: { id: user.pk, name: user.name || user.username },
       createdAt: new Date().toISOString(),
       bookId: book.id,
     };
@@ -208,7 +204,7 @@ export default function BookDetailsPage() {
                       {formatDate(comment.createdAt)}
                     </p>
                   </div>
-                  {user && user.id === comment.author.id && (
+                  {user && user.pk === comment.author.id && (
                     <button
                       onClick={() => handleDeleteComment(comment.id)}
                       className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-all duration-300 hover:scale-110"

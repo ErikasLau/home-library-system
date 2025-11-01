@@ -1,15 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, useOutletContext } from 'react-router';
+import { useNavigate } from 'react-router';
 import { Plus, Lock, Globe } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import LibraryCard from '../components/cards/LibraryCard';
 import AddLibraryModal from '../components/modals/AddLibraryModal';
-import type { User, Library } from '../types';
-
-interface OutletContext {
-  user: User | null;
-  onLoginRequired: () => void;
-}
+import { useAuth } from '../hooks/useAuth';
+import type { Library } from '../types';
 
 // Mock data
 const mockLibraries: Library[] = [
@@ -41,7 +37,7 @@ const mockLibraries: Library[] = [
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { user, onLoginRequired } = useOutletContext<OutletContext>();
+  const { user } = useAuth();
   const [filter, setFilter] = useState<'ALL' | 'PUBLIC' | 'PRIVATE'>('ALL');
   const [showAddLibraryModal, setShowAddLibraryModal] = useState(false);
 
@@ -51,18 +47,10 @@ export default function HomePage() {
   });
 
   const handleAddLibrary = () => {
-    if (!user) {
-      onLoginRequired();
-      return;
-    }
     setShowAddLibraryModal(true);
   };
 
   const handleAddBook = (library: Library) => {
-    if (!user) {
-      onLoginRequired();
-      return;
-    }
     navigate(`/library/${library.id}/add-book`);
   };
 

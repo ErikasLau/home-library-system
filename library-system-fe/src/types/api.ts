@@ -2,7 +2,7 @@
 
 // Generic Response Wrapper
 export interface Response<T> {
-  success: boolean;
+  status: string; // "OK", "ERROR", etc.
   data: T;
   error?: {
     code: string;
@@ -46,6 +46,7 @@ export interface LoginRequest {
 
 export interface LoginResponse {
   token: string;
+  user: User;
 }
 
 export interface User {
@@ -55,8 +56,8 @@ export interface User {
   surname: string;
   username: string;
   email: string;
-  dateOfBirth: string;
-  role: 'USER' | 'MODERATOR' | 'ADMIN';
+  dateOfBirth: string; // Format: YYYY-MM-DD
+  role: 'MEMBER' | 'ADMIN';
 }
 
 // Library
@@ -151,9 +152,11 @@ export interface ApiError {
   error?: {
     code: string;
     message: string;
+    details?: string;
   };
   errors?: Array<{
     field: string;
     message: string;
   }>;
+  details?: string; // Top-level details field for additional error information
 }

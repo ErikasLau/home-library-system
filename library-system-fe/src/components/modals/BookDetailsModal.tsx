@@ -85,7 +85,7 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300 overflow-y-auto">
-      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-4xl my-8 overflow-hidden animate-in zoom-in-95 duration-300">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl my-8 overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-muted to-muted/60 text-foreground p-6 border-b border-border">
           <div className="flex items-start justify-between gap-4">

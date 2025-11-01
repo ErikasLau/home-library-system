@@ -28,21 +28,19 @@ export const authService = {
   /**
    * Login user and store JWT token
    * POST /auth/login
-   * Returns token and user info (if available from token or subsequent call)
+   * Returns token and user info from the response
    */
   login: async (data: LoginRequest): Promise<LoginResult> => {
     const response = await apiClient.publicPost<Response<LoginResponse>>('/auth/login', data);
-    const token = response.data.token;
+    const { token, user } = response.data;
     
     // Store token in localStorage
     tokenManager.set(token);
     
-    // TODO: You may want to add a /auth/me endpoint to fetch user details after login
-    // For now, we'll decode the JWT or make another call if needed
-    // Returning a partial user object that should be updated with actual data
+    // Return both token and user info from the login response
     return {
       token,
-      user: {} as User, // This should be populated from backend
+      user,
     };
   },
 
