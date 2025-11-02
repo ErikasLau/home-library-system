@@ -169,5 +169,6 @@ export interface ApiError {
     field: string;
     message: string;
   }>;
-  details?: string; // Top-level details field for additional error information
+  details?: string;
+  title?: string;
 }

@@ -119,28 +119,34 @@ axiosInstance.interceptors.response.use(
       status: error.response?.status || 500,
     };
 
-    // Handle 401 Unauthorized - clear token and redirect
     if (error.response?.status === 401) {
-      tokenManager.remove();
-      // Only redirect if not already on login page
-      if (!window.location.pathname.includes('/login')) {
-        window.location.href = '/login';
+      const isAuthEndpoint = isPublicEndpoint(error.config?.url);
+      
+      if (!isAuthEndpoint) {
+        tokenManager.remove();
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+        apiError.message = 'Session expired. Please login again.';
+        return Promise.reject(apiError);
       }
-      apiError.message = 'Session expired. Please login again.';
-      return Promise.reject(apiError);
     }
 
-    // Parse error response
     if (error.response?.data) {
       const errorData = error.response.data;
       
-      // Priority 1: Check nested data field
+      // Priority 1: Check nested data field (most common for Spring Boot errors)
       if (errorData.data) {
         if (errorData.data.title) {
-          apiError.message = errorData.data.title;
+          apiError.title = errorData.data.title;
+          apiError.message = errorData.data.title; // Use title as the main message
         }
         if (errorData.data.details) {
           apiError.details = errorData.data.details;
+          // If no title, use details as message
+          if (!apiError.title) {
+            apiError.message = errorData.data.details;
+          }
         }
         if (errorData.data.errors) {
           apiError.errors = errorData.data.errors;
