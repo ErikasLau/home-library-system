@@ -21,7 +21,7 @@ export const authService = {
    * Returns the created user
    */
   register: async (data: RegistrationRequest): Promise<User> => {
-    const response = await apiClient.publicPost<Response<User>>('/auth/register', data);
+    const response = await apiClient.post<Response<User>>('/auth/register', data);
     return response.data;
   },
 
@@ -31,7 +31,7 @@ export const authService = {
    * Returns token and user info from the response
    */
   login: async (data: LoginRequest): Promise<LoginResult> => {
-    const response = await apiClient.publicPost<Response<LoginResponse>>('/auth/login', data);
+    const response = await apiClient.post<Response<LoginResponse>>('/auth/login', data);
     const { token, user } = response.data;
     
     // Store token in localStorage

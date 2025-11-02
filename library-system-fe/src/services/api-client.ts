@@ -83,7 +83,7 @@ const axiosInstance = axios.create({
 });
 
 // List of endpoints that don't require authentication
-const PUBLIC_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/forgot-password'];
+const PUBLIC_ENDPOINTS = ['/auth/login', '/auth/register'];
 
 // Helper to check if endpoint is public
 const isPublicEndpoint = (url?: string): boolean => {

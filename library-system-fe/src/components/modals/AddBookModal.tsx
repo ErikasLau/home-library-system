@@ -5,7 +5,7 @@ import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Textarea } from '../ui/textarea';
 import { toast } from 'sonner';
-import type { Library } from '../../types';
+import type { Library } from '../../types/api';
 
 interface AddBookModalProps {
   library: Library;
@@ -39,7 +39,7 @@ export default function AddBookModal({ library, onClose }: AddBookModalProps) {
       libraryId: library.id,
     };
 
-    toast.success(`"${title}" added to ${library.name}!`);
+    toast.success(`"${title}" added to ${library.title}!`);
     onClose();
   };
 
@@ -55,7 +55,7 @@ export default function AddBookModal({ library, onClose }: AddBookModalProps) {
               </div>
               <div>
                 <h2>Add Book</h2>
-                <p className="text-sm text-secondary-foreground/80 mt-1">to {library.name}</p>
+                <p className="text-sm text-secondary-foreground/80 mt-1">to {library.title}</p>
               </div>
             </div>
             <button

@@ -2,6 +2,7 @@ package com.myhomelibrary.library_system.controllers;
 
 import com.myhomelibrary.library_system.domains.api.Response;
 import com.myhomelibrary.library_system.domains.book.*;
+import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.BookRepository;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import com.myhomelibrary.library_system.security.SecurityUtils;
@@ -38,9 +39,10 @@ public class LibraryBookController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Books retrieved successfully"),
     })
-    public Page<BookShort> getBooks(@PathVariable UUID libraryId, @PageableDefault(size = 20) Pageable pageable) {
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libraryId);
-        return bookService.getAllBooksByLibraryId(libraryId, pageable);
+    public Page<BookShort> getBooks(@PathVariable String libraryId, @PageableDefault(size = 20) Pageable pageable) {
+        UUID libUuid = parseUuid(libraryId);
+        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libUuid);
+        return bookService.getAllBooksByLibraryId(libUuid, pageable);
     }
 
     @GetMapping("/{id}")
@@ -48,9 +50,11 @@ public class LibraryBookController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book retrieved successfully"),
     })
-    public Response<BookWithComments> getBookById(@PathVariable UUID libraryId, @PathVariable UUID id) {
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libraryId);
-        return Response.success(bookService.getBookByIdInLibrary(libraryId, id));
+    public Response<BookWithComments> getBookById(@PathVariable String libraryId, @PathVariable String id) {
+        UUID libUuid = parseUuid(libraryId);
+        UUID bookUuid = parseUuid(id);
+        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libUuid);
+        return Response.success(bookService.getBookByIdInLibrary(libUuid, bookUuid));
     }
 
     @PostMapping
@@ -59,9 +63,10 @@ public class LibraryBookController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Book created successfully"),
     })
-    public Response<Book> createBook(@PathVariable UUID libraryId, @Valid @RequestBody BookRequest bookRequest) {
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libraryId);
-        return Response.success(bookService.createBookInLibrary(libraryId, bookRequest, SecurityUtils.getAuthenticatedUserPk()));
+    public Response<Book> createBook(@PathVariable String libraryId, @Valid @RequestBody BookRequest bookRequest) {
+        UUID libUuid = parseUuid(libraryId);
+        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libUuid);
+        return Response.success(bookService.createBookInLibrary(libUuid, bookRequest, SecurityUtils.getAuthenticatedUserPk()));
     }
 
     @DeleteMapping("/{id}")
@@ -70,9 +75,11 @@ public class LibraryBookController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book deleted successfully"),
     })
-    public Response<UUID> deleteBook(@PathVariable UUID libraryId, @PathVariable UUID id) {
-        genericAccessService.assertOwnerOrAdmin(bookRepository::findBookById, id);
-        return Response.success(bookService.deleteBookByIdInLibrary(libraryId, id));
+    public Response<String> deleteBook(@PathVariable String libraryId, @PathVariable String id) {
+        UUID bookUuid = parseUuid(id);
+        genericAccessService.assertOwnerOrAdmin(bookRepository::findBookById, bookUuid);
+        UUID deleted = bookService.deleteBookByIdInLibrary(parseUuid(libraryId), bookUuid);
+        return Response.success(deleted.toString());
     }
 
     @PutMapping("/{id}")
@@ -81,8 +88,18 @@ public class LibraryBookController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Book updated successfully"),
     })
-    public Response<BookWithComments> updateBook(@PathVariable UUID libraryId, @PathVariable UUID id, @Valid @RequestBody BookUpdateRequest bookUpdateRequest) {
-        genericAccessService.assertOwnerOrAdmin(bookRepository::findBookById, id);
-        return Response.success(bookService.updateBookInLibrary(libraryId, id, bookUpdateRequest));
+    public Response<BookWithComments> updateBook(@PathVariable String libraryId, @PathVariable String id, @Valid @RequestBody BookUpdateRequest bookUpdateRequest) {
+        UUID libUuid = parseUuid(libraryId);
+        UUID bookUuid = parseUuid(id);
+        genericAccessService.assertOwnerOrAdmin(bookRepository::findBookById, bookUuid);
+        return Response.success(bookService.updateBookInLibrary(libUuid, bookUuid, bookUpdateRequest));
+    }
+
+    private UUID parseUuid(String id) {
+        try {
+            return UUID.fromString(id);
+        } catch (IllegalArgumentException ex) {
+            throw new NotFoundException("Invalid UUID format: " + id);
+        }
     }
 }

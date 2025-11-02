@@ -63,66 +63,77 @@ export interface User {
 // Library
 export interface Library {
   id: string;
-  name: string;
+  title: string;
   description?: string;
-  userId?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  color?: string;
+  privacyStatus: 'PUBLIC' | 'PRIVATE';
+  isEditable: boolean;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface LibraryRequest {
-  name: string;
+  title: string;
   description?: string;
+  color?: string;
+  privacyStatus?: 'PUBLIC' | 'PRIVATE';
 }
 
 // Book
-export interface Book {
-  id: string;
-  title: string;
-  author: string;
-  isbn?: string;
-  publishedYear?: number;
-  genre?: string;
-  description?: string;
-  coverImageUrl?: string;
-  libraryId: string;
-  creatorId?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 export interface BookShort {
   id: string;
   title: string;
   author: string;
-  isbn?: string;
-  publishedYear?: number;
-  genre?: string;
-  coverImageUrl?: string;
+  releaseDate: string;
+  language: string;
+  coverImageUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface BookWithComments extends Book {
-  comments?: Comment[];
+export interface Book {
+  id: string;
+  title: string;
+  author: string;
+  isbn: string;
+  releaseDate: string;
+  description: string;
+  language: string;
+  pages: number;
+  publisher: string;
+  genre: string;
+  coverImageUrl: string | null;
+  createdAt: string;
+  updatedAt: string;
+  comments: CommentWithUser[];
+}
+
+export interface CommentWithUser {
+  id: string;
+  text: string;
+  rating: number;
+  createdAt: string;
+  updatedAt: string;
+  user: {
+    id: string;
+    username: string;
+  };
 }
 
 export interface BookRequest {
   title: string;
   author: string;
-  isbn?: string;
-  publishedYear?: number;
-  genre?: string;
-  description?: string;
-  coverImageUrl?: string;
+  releaseDate: string; // Format: YYYY-MM-DD
+  language: string;
+  coverImageUrl?: string | null;
 }
 
 export interface BookUpdateRequest {
   title?: string;
   author?: string;
-  isbn?: string;
-  publishedYear?: number;
-  genre?: string;
-  description?: string;
-  coverImageUrl?: string;
+  releaseDate?: string; // Format: YYYY-MM-DD
+  language?: string;
+  coverImageUrl?: string | null;
 }
 
 // Comment

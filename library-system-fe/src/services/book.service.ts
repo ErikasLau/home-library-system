@@ -1,12 +1,9 @@
-// Book Service
-
 import { apiClient } from './api-client';
 import type {
   Response,
   Page,
   Book,
   BookShort,
-  BookWithComments,
   BookRequest,
   BookUpdateRequest,
   PageableParams,
@@ -26,8 +23,8 @@ export const bookService = {
    * Get book details with comments
    * GET /v1/library/{libraryId}/books/{id}
    */
-  getBookById: async (libraryId: string, bookId: string): Promise<BookWithComments> => {
-    const response = await apiClient.get<Response<BookWithComments>>(
+  getBookById: async (libraryId: string, bookId: string): Promise<Book> => {
+    const response = await apiClient.get<Response<Book>>(
       `/v1/library/${libraryId}/books/${bookId}`
     );
     return response.data;
@@ -53,8 +50,8 @@ export const bookService = {
     libraryId: string,
     bookId: string,
     data: BookUpdateRequest
-  ): Promise<BookWithComments> => {
-    const response = await apiClient.put<Response<BookWithComments>>(
+  ): Promise<Book> => {
+    const response = await apiClient.put<Response<Book>>(
       `/v1/library/${libraryId}/books/${bookId}`,
       data
     );

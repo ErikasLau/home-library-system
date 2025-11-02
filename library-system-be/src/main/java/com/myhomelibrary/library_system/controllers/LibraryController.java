@@ -3,6 +3,7 @@ package com.myhomelibrary.library_system.controllers;
 import com.myhomelibrary.library_system.domains.api.Response;
 import com.myhomelibrary.library_system.domains.library.Library;
 import com.myhomelibrary.library_system.domains.library.LibraryRequest;
+import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import com.myhomelibrary.library_system.security.SecurityUtils;
 import com.myhomelibrary.library_system.services.GenericAccessService;
@@ -60,9 +61,10 @@ public class LibraryController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Library retrieved successfully"),
     })
-    public Response<Library> getLibraryById(@PathVariable UUID id) {
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, id);
-        return Response.success(libraryService.getLibraryById(id));
+    public Response<Library> getLibraryById(@PathVariable String id) {
+        UUID uuid = parseUuid(id);
+        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, uuid);
+        return Response.success(libraryService.getLibraryById(uuid));
     }
 
     @PostMapping
@@ -81,9 +83,11 @@ public class LibraryController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Library deleted successfully"),
     })
-    public Response<UUID> deleteLibrary(@PathVariable UUID id) {
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, id);
-        return Response.success(libraryService.deleteLibraryById(id));
+    public Response<String> deleteLibrary(@PathVariable String id) {
+        UUID uuid = parseUuid(id);
+        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, uuid);
+        var deleted = libraryService.deleteLibraryById(uuid);
+        return Response.success(deleted.toString());
     }
 
     @PutMapping("/{id}")
@@ -92,8 +96,17 @@ public class LibraryController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Library updated successfully"),
     })
-    public Response<Library> updateLibrary(@PathVariable UUID id, @Valid @RequestBody LibraryRequest libraryRequest) {
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, id);
-        return Response.success(libraryService.updateLibrary(id, libraryRequest));
+    public Response<Library> updateLibrary(@PathVariable String id, @Valid @RequestBody LibraryRequest libraryRequest) {
+        UUID uuid = parseUuid(id);
+        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, uuid);
+        return Response.success(libraryService.updateLibrary(uuid, libraryRequest));
+    }
+
+    private UUID parseUuid(String id) {
+        try {
+            return UUID.fromString(id);
+        } catch (IllegalArgumentException ex) {
+            throw new NotFoundException("Invalid UUID format: " + id);
+        }
     }
 }
