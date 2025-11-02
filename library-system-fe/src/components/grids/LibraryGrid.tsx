@@ -8,7 +8,7 @@ interface LibraryGridProps {
   user: User | null;
   libraries: Library[];
   onAddLibrary: () => void;
-  onAddBook: (library: Library) => void;
+  onLibraryUpdated?: () => void;
 }
 
 type FilterType = 'ALL' | 'PUBLIC' | 'PRIVATE';
@@ -19,7 +19,7 @@ const FILTERS: { type: FilterType; label: string; Icon?: typeof Globe | typeof L
   { type: 'PRIVATE', label: 'Private', Icon: Lock },
 ];
 
-export default function LibraryGrid({ libraries, onAddLibrary, onAddBook }: LibraryGridProps) {
+export default function LibraryGrid({ libraries, onAddLibrary, onLibraryUpdated }: LibraryGridProps) {
   const [filter, setFilter] = useState<FilterType>('ALL');
   
   const filteredLibraries = filter === 'ALL' ? libraries : libraries.filter(lib => lib.privacyStatus === filter);
@@ -55,7 +55,7 @@ export default function LibraryGrid({ libraries, onAddLibrary, onAddBook }: Libr
       {filteredLibraries.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredLibraries.map(library => (
-            <LibraryCard key={library.id} library={library} onAddBook={() => onAddBook(library)} />
+            <LibraryCard key={library.id} library={library} onLibraryUpdated={onLibraryUpdated} />
           ))}
         </div>
       ) : (

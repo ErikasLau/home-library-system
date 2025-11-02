@@ -1,11 +1,13 @@
 import { BrowserRouter, Routes, Route } from 'react-router';
 import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
+import ScrollToTop from './components/ScrollToTop';
 import { HomePage, LibraryBooksPage, BookDetailsPage, LoginPage } from './pages';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <Routes>
         <Route path="/login" element={<LoginPage />} />        
         <Route path="/" element={

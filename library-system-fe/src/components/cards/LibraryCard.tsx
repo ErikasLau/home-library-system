@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import { Link } from 'react-router';
-import { Lock, Globe, Eye } from 'lucide-react';
+import { Lock, Globe, Eye, Pencil } from 'lucide-react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import UpdateLibraryModal from '../modals/UpdateLibraryModal';
 import type { Library } from '../../types/api';
 
 interface LibraryCardProps {
   library: Library;
+  onLibraryUpdated?: () => void;
 }
 
-export default function LibraryCard({ library }: LibraryCardProps) {
+export default function LibraryCard({ library, onLibraryUpdated }: LibraryCardProps) {
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
   const isPrivate = library.privacyStatus === 'PRIVATE';
   const PrivacyIcon = isPrivate ? Lock : Globe;
   
@@ -29,42 +33,64 @@ export default function LibraryCard({ library }: LibraryCardProps) {
 
   const headerBgColor = getTransparentColor(library.color);
 
+  const handleUpdateSuccess = () => {
+    setShowUpdateModal(false);
+    onLibraryUpdated?.();
+  };
+
   return (
-    <div 
-      className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-colors duration-200 hover:bg-gray-50 flex flex-col h-full"
-    >
+    <>
       <div 
-        className="p-6 border-b border-gray-200 flex-1"
-        style={{ 
-          backgroundColor: headerBgColor
-        }}
+        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-colors duration-200 hover:bg-gray-50 flex flex-col h-full"
       >
-        <div className="flex items-start justify-between mb-3">
-          <h3 className="text-lg font-semibold text-gray-900 flex-1">{library.title}</h3>
-          <Badge 
-            className={`flex items-center gap-1 ${
-              isPrivate 
-                ? 'bg-red-100 text-red-800 border-red-300' 
-                : 'bg-green-100 text-green-800 border-green-300'
-            }`}
-          >
-            <PrivacyIcon className="w-3 h-3" />
-            {library.privacyStatus}
-          </Badge>
+        <div 
+          className="p-6 border-b border-gray-200 flex-1"
+          style={{ 
+            backgroundColor: headerBgColor
+          }}
+        >
+          <div className="flex items-start justify-between mb-3">
+            <h3 className="text-lg font-semibold text-gray-900 flex-1">{library.title}</h3>
+            <Badge 
+              className={`flex items-center gap-1 ${
+                isPrivate 
+                  ? 'bg-red-100 text-red-800 border-red-300' 
+                  : 'bg-green-100 text-green-800 border-green-300'
+              }`}
+            >
+              <PrivacyIcon className="w-3 h-3" />
+              {library.privacyStatus}
+            </Badge>
+          </div>
+          <p className="text-gray-600 text-sm line-clamp-2">{library.description}</p>
         </div>
-        <p className="text-gray-600 text-sm line-clamp-2">{library.description}</p>
+
+        <div className="p-6 flex gap-2 items-center">
+          <Link to={`/library/${library.id}`} className="flex-1">
+            <Button 
+              className="w-full bg-black text-white hover:bg-gray-800 shadow-sm hover:shadow-md transition-all"
+            >
+              <Eye className="w-4 h-4 mr-2" />
+              View Books
+            </Button>
+          </Link>
+          <Button
+            onClick={() => setShowUpdateModal(true)}
+            className="aspect-square p-0 w-10 h-10 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
+            title="Update library"
+          >
+            <Pencil className="w-4 h-4" />
+          </Button>
+        </div>
       </div>
 
-      <div className="p-6">
-        <Link to={`/library/${library.id}`} className="block">
-          <Button 
-            className="w-full bg-black text-white hover:bg-gray-800 shadow-sm hover:shadow-md transition-all"
-          >
-            <Eye className="w-4 h-4 mr-2" />
-            View Books
-          </Button>
-        </Link>
-      </div>
-    </div>
+      {showUpdateModal && (
+        <UpdateLibraryModal 
+          onClose={() => setShowUpdateModal(false)}
+          library={library}
+          onSuccess={handleUpdateSuccess}
+        />
+      )}
+    </>
   );
 }
