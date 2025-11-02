@@ -66,6 +66,10 @@ export default function HomePage() {
     setRefreshTrigger(prev => prev + 1);
   };
 
+  const handleLibraryDeleted = () => {
+    setRefreshTrigger(prev => prev + 1);
+  };
+
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       <PageTitle
@@ -124,7 +128,12 @@ export default function HomePage() {
       {!loading && !error && filteredLibraries.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredLibraries.map(library => (
-            <LibraryCard key={library.id} library={library} onLibraryUpdated={handleLibraryUpdated} />
+            <LibraryCard 
+              key={library.id} 
+              library={library} 
+              onLibraryUpdated={handleLibraryUpdated}
+              onLibraryDeleted={handleLibraryDeleted}
+            />
           ))}
         </div>
       )}

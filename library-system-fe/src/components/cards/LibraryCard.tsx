@@ -1,18 +1,24 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Lock, Globe, Eye, Pencil } from 'lucide-react';
+import { Lock, Globe, Eye, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import UpdateLibraryModal from '../modals/UpdateLibraryModal';
+import ConfirmationModal from '../modals/ConfirmationModal';
+import { libraryService } from '../../services';
 import type { Library } from '../../types/api';
 
 interface LibraryCardProps {
   library: Library;
   onLibraryUpdated?: () => void;
+  onLibraryDeleted?: () => void;
 }
 
-export default function LibraryCard({ library, onLibraryUpdated }: LibraryCardProps) {
+export default function LibraryCard({ library, onLibraryUpdated, onLibraryDeleted }: LibraryCardProps) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const isPrivate = library.privacyStatus === 'PRIVATE';
   const PrivacyIcon = isPrivate ? Lock : Globe;
   
@@ -36,6 +42,23 @@ export default function LibraryCard({ library, onLibraryUpdated }: LibraryCardPr
   const handleUpdateSuccess = () => {
     setShowUpdateModal(false);
     onLibraryUpdated?.();
+  };
+
+  const handleDeleteConfirm = async () => {
+    setIsDeleting(true);
+    try {
+      await libraryService.deleteLibrary(library.id);
+      toast.success('Library deleted successfully');
+      setShowDeleteModal(false);
+      onLibraryDeleted?.();
+    } catch (error) {
+      const apiError = error as { message?: string };
+      toast.error('Failed to delete library', {
+        description: apiError.message || 'Please try again.',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
   };
 
   return (
@@ -76,10 +99,17 @@ export default function LibraryCard({ library, onLibraryUpdated }: LibraryCardPr
           </Link>
           <Button
             onClick={() => setShowUpdateModal(true)}
-            className="aspect-square p-0 w-10 h-10 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
+            className="p-0 w-10 h-10 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
             title="Update library"
           >
             <Pencil className="w-4 h-4" />
+          </Button>
+          <Button
+            onClick={() => setShowDeleteModal(true)}
+            className="p-0 w-10 h-10 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all"
+            title="Delete library"
+          >
+            <Trash2 className="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -91,6 +121,18 @@ export default function LibraryCard({ library, onLibraryUpdated }: LibraryCardPr
           onSuccess={handleUpdateSuccess}
         />
       )}
+
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Library"
+        description={`Are you sure you want to delete "${library.title}"? This action cannot be undone and will remove all books in this library.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        isLoading={isDeleting}
+        variant="danger"
+      />
     </>
   );
 }

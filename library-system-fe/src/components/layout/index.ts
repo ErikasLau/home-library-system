@@ -6,3 +6,4 @@ export { default as NavLinks } from './NavLinks';
 export { default as UserInfo } from './UserInfo';
 export { default as MobileMenu } from './MobileMenu';
 export { default as PageTitle } from './PageTitle';
+export { default as LibraryHeader } from './LibraryHeader';
