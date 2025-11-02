@@ -1,4 +1,5 @@
 import { Navigate } from 'react-router';
+import { Loader2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 
 interface ProtectedRouteProps {
@@ -6,7 +7,19 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Show loading state while verifying session
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <Loader2 className="w-12 h-12 animate-spin text-gray-900 mx-auto mb-4" />
+          <p className="text-gray-600 font-medium">Verifying session...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

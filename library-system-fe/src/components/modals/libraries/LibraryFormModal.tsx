@@ -3,10 +3,10 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { X, Library as LibraryIcon } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '../../ui/button';
 import { toast } from 'sonner';
-import { libraryService } from '../../services';
-import type { Library } from '../../types/api';
+import { libraryService } from '../../../services';
+import type { Library } from '../../../types/api';
 import LibraryFormFields from './LibraryFormFields';
 
 const librarySchema = z.object({
@@ -110,7 +110,7 @@ export default function LibraryFormModal({ onClose, onSuccess, library, mode }: 
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-gray-800 transition-all duration-300 hover:rotate-90"
+              className="p-2 rounded-lg hover:bg-gray-800 transition-all duration-300 hover:rotate-90 cursor-pointer"
               aria-label="Close"
             >
               <X className="w-5 h-5" />

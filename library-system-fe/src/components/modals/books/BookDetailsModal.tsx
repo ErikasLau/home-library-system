@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import { X, Calendar, Hash, MessageCircle, Send, Trash2 } from 'lucide-react';
-import { Button } from '../ui/button';
-import { Textarea } from '../ui/textarea';
-import { ImageWithFallback } from '../figma/ImageWithFallback';
+import { Button } from '../../ui/button';
+import { Textarea } from '../../ui/textarea';
+import { ImageWithFallback } from '../../figma/ImageWithFallback';
 import { toast } from 'sonner';
-import type { Book, User, Comment } from '../../types';
+import type { Book, User } from '../../../types/api';
 
 interface BookDetailsModalProps {
   book: Book;
@@ -12,33 +12,42 @@ interface BookDetailsModalProps {
   onClose: () => void;
 }
 
+// Local comment interface for this modal
+interface BookComment {
+  id: string;
+  text: string;
+  author: { id: string; name: string };
+  createdAt: string;
+  bookId: string;
+}
+
 // Mock comments
-const mockComments: Comment[] = [
+const mockComments: BookComment[] = [
   {
-    id: 1,
+    id: '1',
     text: 'Absolutely amazing! One of the best sci-fi novels I\'ve ever read. The world-building is incredible.',
-    author: { id: 1, name: 'Erikas Lau' },
+    author: { id: '1', name: 'Erikas Lau' },
     createdAt: '2025-10-15T14:30:00Z',
-    bookId: 1,
+    bookId: '1',
   },
   {
-    id: 2,
+    id: '2',
     text: 'A masterpiece that defined a genre. The political intrigue mixed with ecological themes is fascinating.',
-    author: { id: 2, name: 'Sarah Connor' },
+    author: { id: '2', name: 'Sarah Connor' },
     createdAt: '2025-10-18T09:15:00Z',
-    bookId: 1,
+    bookId: '1',
   },
   {
-    id: 3,
+    id: '3',
     text: 'Started slow but became unputdownable. Can\'t wait to read the sequels!',
-    author: { id: 3, name: 'John Doe' },
+    author: { id: '3', name: 'John Doe' },
     createdAt: '2025-10-19T16:45:00Z',
-    bookId: 1,
+    bookId: '1',
   },
 ];
 
 export default function BookDetailsModal({ book, user, onClose }: BookDetailsModalProps) {
-  const [comments, setComments] = useState<Comment[]>(mockComments);
+  const [comments, setComments] = useState<BookComment[]>(mockComments);
   const [newComment, setNewComment] = useState('');
 
   const handleAddComment = (e: React.FormEvent) => {
@@ -54,8 +63,8 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
       return;
     }
 
-    const comment: Comment = {
-      id: Date.now(),
+    const comment: BookComment = {
+      id: Date.now().toString(),
       text: newComment,
       author: { id: user.id, name: user.name },
       createdAt: new Date().toISOString(),
@@ -67,7 +76,7 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
     toast.success('Comment added!');
   };
 
-  const handleDeleteComment = (commentId: number) => {
+  const handleDeleteComment = (commentId: string) => {
     setComments(comments.filter(c => c.id !== commentId));
     toast.success('Comment deleted');
   };
@@ -87,7 +96,7 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl my-8 overflow-hidden animate-in zoom-in-95 duration-300">
         {/* Modal Header */}
-        <div className="bg-gradient-to-r from-muted to-muted/60 text-foreground p-6 border-b border-border">
+        <div className="bg-linear-to-r from-muted to-muted/60 text-foreground p-6 border-b border-border">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
               <h2 className="mb-2">{book.title}</h2>
@@ -95,7 +104,7 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
             </div>
             <button
               onClick={onClose}
-              className="p-2 rounded-lg hover:bg-background/50 transition-all duration-300 hover:rotate-90"
+              className="p-2 rounded-lg hover:bg-background/50 transition-all duration-300 hover:rotate-90 cursor-pointer"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
@@ -110,7 +119,7 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
             <div className="md:col-span-1">
               <div className="rounded-xl overflow-hidden shadow-lg bg-muted">
                 <ImageWithFallback
-                  src={book.coverUrl}
+                  src={book.coverImageUrl || ''}
                   alt={book.title}
                   className="w-full h-auto object-cover"
                   style={{ maxWidth: '100%' }}
@@ -130,10 +139,10 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
                   <span>ISBN: {book.isbn}</span>
                 </div>
               )}
-              {book.publishedYear && (
+              {book.releaseDate && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Calendar className="w-4 h-4" />
-                  <span>Published: {book.publishedYear}</span>
+                  <span>Published: {book.releaseDate}</span>
                 </div>
               )}
             </div>
@@ -194,7 +203,7 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
                       {user && user.id === comment.author.id && (
                         <button
                           onClick={() => handleDeleteComment(comment.id)}
-                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-all duration-300 hover:scale-110"
+                          className="p-2 text-destructive hover:bg-destructive/10 rounded-lg transition-all duration-300 hover:scale-110 cursor-pointer"
                           aria-label="Delete comment"
                         >
                           <Trash2 className="w-4 h-4" />

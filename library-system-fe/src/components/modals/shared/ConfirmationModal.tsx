@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { X, AlertTriangle } from 'lucide-react';
-import { Button } from '../ui/button';
+import { Button } from '../../ui/button';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -76,7 +76,7 @@ export default function ConfirmationModal({
             <button
               onClick={onClose}
               disabled={isLoading}
-              className="p-2 rounded-lg hover:bg-white/20 transition-all duration-300 hover:rotate-90 disabled:opacity-50 disabled:hover:rotate-0"
+              className="p-2 rounded-lg hover:bg-white/20 transition-all duration-300 hover:rotate-90 disabled:opacity-50 disabled:hover:rotate-0 cursor-pointer disabled:cursor-not-allowed"
               aria-label="Close"
             >
               <X className="w-5 h-5" />

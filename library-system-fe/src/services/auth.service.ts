@@ -64,4 +64,15 @@ export const authService = {
   getToken: (): string | null => {
     return tokenManager.get();
   },
+
+  /**
+   * Verify current user session and get user details
+   * GET /auth/me
+   * Returns current user info if token is valid
+   * Throws 401 if token is expired or invalid
+   */
+  verifySession: async (): Promise<User> => {
+    const response = await apiClient.get<Response<User>>('/auth/me');
+    return response.data;
+  },
 };

@@ -122,18 +122,28 @@ export interface CommentWithUser {
 
 export interface BookRequest {
   title: string;
-  author: string;
-  releaseDate: string; // Format: YYYY-MM-DD
-  language: string;
-  coverImageUrl?: string | null;
+  author?: string;
+  isbn?: string;
+  releaseDate?: string; // Format: YYYY-MM-DD
+  description?: string;
+  language?: string;
+  pages?: number;
+  publisher?: string;
+  genre?: string;
+  coverImageUrl?: string;
 }
 
 export interface BookUpdateRequest {
   title?: string;
   author?: string;
+  isbn?: string;
   releaseDate?: string; // Format: YYYY-MM-DD
+  description?: string;
   language?: string;
-  coverImageUrl?: string | null;
+  pages?: number;
+  publisher?: string;
+  genre?: string;
+  coverImageUrl?: string;
 }
 
 // Comment

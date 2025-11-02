@@ -4,8 +4,8 @@ import { Lock, Globe, Eye, Pencil, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import UpdateLibraryModal from '../modals/UpdateLibraryModal';
-import ConfirmationModal from '../modals/ConfirmationModal';
+import UpdateLibraryModal from '../modals/libraries/UpdateLibraryModal';
+import ConfirmationModal from '../modals/shared/ConfirmationModal';
 import { libraryService } from '../../services';
 import type { Library } from '../../types/api';
 

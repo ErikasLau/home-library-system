@@ -1,7 +1,21 @@
-export { default as AddBookModal } from './AddBookModal';
-export { default as AddLibraryModal } from './AddLibraryModal';
-export { default as UpdateLibraryModal } from './UpdateLibraryModal';
-export { default as BookDetailsModal } from './BookDetailsModal';
-export { default as LibraryFormModal } from './LibraryFormModal';
-export { default as LibraryFormFields } from './LibraryFormFields';
-export { default as ConfirmationModal } from './ConfirmationModal';
+// Book modals
+export { 
+  AddBookModal, 
+  UpdateBookModal, 
+  BookDetailsModal, 
+  BookFormModal, 
+  BookFormFields 
+} from './books';
+export type { BookFormData } from './books';
+
+// Library modals
+export { 
+  AddLibraryModal, 
+  UpdateLibraryModal, 
+  LibraryFormModal, 
+  LibraryFormFields 
+} from './libraries';
+export type { LibraryFormData } from './libraries';
+
+// Shared modals
+export { ConfirmationModal } from './shared';

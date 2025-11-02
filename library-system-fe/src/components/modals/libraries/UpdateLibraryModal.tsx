@@ -1,4 +1,4 @@
-import type { Library } from '../../types/api';
+import type { Library } from '../../../types/api';
 import LibraryFormModal from './LibraryFormModal';
 
 interface UpdateLibraryModalProps {

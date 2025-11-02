@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Plus, Lock, Globe, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import LibraryCard from '../components/cards/LibraryCard';
-import AddLibraryModal from '../components/modals/AddLibraryModal';
+import AddLibraryModal from '../components/modals/libraries/AddLibraryModal';
 import PageTitle from '../components/layout/PageTitle';
 import { useAuth } from '../hooks/useAuth';
 import { libraryService } from '../services';

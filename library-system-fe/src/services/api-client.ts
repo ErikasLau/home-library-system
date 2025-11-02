@@ -108,12 +108,15 @@ axiosInstance.interceptors.request.use(
   }
 );
 
+// Track if we're currently verifying the session to avoid infinite loops
+let isVerifyingSession = false;
+
 // Response interceptor to handle errors
 axiosInstance.interceptors.response.use(
   (response) => {
     return response;
   },
-  (error: AxiosError<ErrorResponse>) => {
+  async (error: AxiosError<ErrorResponse>) => {
     const apiError: ApiError = {
       message: 'An error occurred',
       status: error.response?.status || 500,
@@ -121,14 +124,50 @@ axiosInstance.interceptors.response.use(
 
     if (error.response?.status === 401) {
       const isAuthEndpoint = isPublicEndpoint(error.config?.url);
+      const isAuthMeEndpoint = error.config?.url?.includes('/auth/me');
       
       if (!isAuthEndpoint) {
-        tokenManager.remove();
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
+        // If this is already the /auth/me verification call, just logout
+        if (isAuthMeEndpoint) {
+          tokenManager.remove();
+          if (!window.location.pathname.includes('/login')) {
+            window.location.href = '/login';
+          }
+          apiError.message = 'Session expired. Please login again.';
+          return Promise.reject(apiError);
         }
-        apiError.message = 'Session expired. Please login again.';
-        return Promise.reject(apiError);
+        
+        // For other endpoints, verify with /auth/me first (if not already verifying)
+        if (!isVerifyingSession) {
+          try {
+            isVerifyingSession = true;
+            // Try to verify the session
+            await axiosInstance.get('/auth/me');
+            isVerifyingSession = false;
+            
+            // If /auth/me succeeds, retry the original request
+            if (error.config) {
+              return axiosInstance.request(error.config);
+            }
+          } catch {
+            isVerifyingSession = false;
+            // /auth/me failed (401), so logout the user
+            tokenManager.remove();
+            if (!window.location.pathname.includes('/login')) {
+              window.location.href = '/login';
+            }
+            apiError.message = 'Session expired. Please login again.';
+            return Promise.reject(apiError);
+          }
+        } else {
+          // Already verifying, just logout to avoid loops
+          tokenManager.remove();
+          if (!window.location.pathname.includes('/login')) {
+            window.location.href = '/login';
+          }
+          apiError.message = 'Session expired. Please login again.';
+          return Promise.reject(apiError);
+        }
       }
     }
 

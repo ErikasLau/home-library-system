@@ -4,7 +4,7 @@ import { ArrowLeft, BookOpen, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import BookCard from '../components/cards/BookCard';
 import LibraryHeader from '../components/layout/LibraryHeader';
-import AddBookModal from '../components/modals/AddBookModal';
+import AddBookModal from '../components/modals/books/AddBookModal';
 import { bookService, libraryService } from '../services';
 import type { Library, BookShort } from '../types/api';
 
@@ -82,7 +82,7 @@ export default function LibraryBooksPage() {
       <div className="max-w-7xl mx-auto space-y-6">
         <Link 
           to="/"
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:-translate-x-1 group cursor-pointer"
+          className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:-translate-x-1 group cursor-pointer"
         >
           <ArrowLeft className="w-5 h-5 transition-transform group-hover:scale-110" />
           <span className="font-medium">Back to Libraries</span>
@@ -111,7 +111,7 @@ export default function LibraryBooksPage() {
     <div className="max-w-7xl mx-auto space-y-6">
       <Link 
         to="/"
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:-translate-x-1 group cursor-pointer"
+        className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:-translate-x-1 group cursor-pointer"
       >
         <ArrowLeft className="w-5 h-5 transition-transform group-hover:scale-110" />
         <span className="font-medium">Back to Libraries</span>

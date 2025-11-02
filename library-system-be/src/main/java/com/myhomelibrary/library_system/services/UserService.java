@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseToken;
 import com.google.firebase.auth.UserRecord;
+import com.myhomelibrary.library_system.configs.FirebaseProperties;
 import com.myhomelibrary.library_system.converters.UserConverter;
 import com.myhomelibrary.library_system.domains.enums.UserRole;
 import com.myhomelibrary.library_system.domains.firebase.FirebaseSignInResponse;
@@ -14,6 +15,7 @@ import com.myhomelibrary.library_system.domains.user.User;
 import com.myhomelibrary.library_system.exceptions.FirebaseServiceException;
 import com.myhomelibrary.library_system.exceptions.ResourceAlreadyExistsException;
 import com.myhomelibrary.library_system.repositories.UserRepository;
+import com.myhomelibrary.library_system.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserConverter userConverter;
     private final FirebaseAuthService firebaseAuthService;
+    private final FirebaseProperties firebaseProperties;
 
     public User registerUser(final RegistrationRequest registrationRequest) {
         User user = userConverter.toUser(registrationRequest, UserRole.MEMBER);
@@ -84,11 +87,23 @@ public class UserService {
                     user.getRole().name(),
                     user.getDateOfBirth() != null ? user.getDateOfBirth().toString() : null
             );
+
+            long tokenLifetime = Math.min(firebaseProperties.getCustomTokenLifetimeSeconds(), 3600);
             return firebaseAuth.createCustomToken(user.getId(), customClaims.toMap());
         } catch (FirebaseAuthException e) {
             log.error("Failed to set custom claims: {}", e.getMessage(), e);
             throw new FirebaseServiceException("Failed to set custom claims", e);
         }
+    }
+
+    public User getCurrentUser() {
+        String firebaseUid = SecurityUtils.getAuthenticatedUser().firebaseUid();
+        return userRepository.findUserById(firebaseUid)
+                .map(userConverter::toUser)
+                .orElseThrow(() -> {
+                    log.error("User retrieval failed for authenticated UID: {}", firebaseUid);
+                    return new FirebaseServiceException("Current user not found");
+                });
     }
 
 }

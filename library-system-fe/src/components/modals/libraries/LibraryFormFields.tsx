@@ -1,9 +1,9 @@
 import type { UseFormRegister, FieldErrors, UseFormWatch, UseFormSetValue } from 'react-hook-form';
 import { Library as LibraryIcon, FileText, Palette, Globe, Lock } from 'lucide-react';
-import { Label } from '../ui/label';
-import { Textarea } from '../ui/textarea';
-import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import { Input } from '../ui/input';
+import { Label } from '../../ui/label';
+import { Textarea } from '../../ui/textarea';
+import { RadioGroup, RadioGroupItem } from '../../ui/radio-group';
+import { Input } from '../../ui/input';
 import type { LibraryFormData } from './LibraryFormModal';
 
 const PRESET_COLORS = [
