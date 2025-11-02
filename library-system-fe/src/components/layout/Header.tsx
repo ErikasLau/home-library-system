@@ -1,55 +1,33 @@
 import { useState } from 'react';
-import { Link } from 'react-router';
-import { Menu, X, Library, User, LogOut } from 'lucide-react';
-import { Button } from '../ui/button';
-import { useAuth } from '../../hooks/useAuth';
+import { Menu, X } from 'lucide-react';
+import Logo from './Logo';
+import NavLinks from './NavLinks';
+import UserInfo from './UserInfo';
+import MobileMenu from './MobileMenu';
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, logout } = useAuth();
-
-  const handleLogout = () => {
-    logout();
-    setMobileMenuOpen(false);
-  };
 
   return (
-    <header className="sticky bg-white top-0 z-50 bg-linear-to-r from-primary via-primary/95 to-primary/90 text-primary-foreground shadow-lg border-b-4 border-primary-foreground/10">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo */}
-          <Link
-            to="/"
-            className="flex items-center gap-3 transition-transform hover:scale-105 duration-300"
-          >
-            <div className="bg-primary-foreground text-primary p-2 rounded-xl shadow-md">
-              <Library className="w-6 h-6 md:w-7 md:h-7" />
-            </div>
-            <span className="font-['Merriweather',serif] tracking-tight">
-              My Home Library
-            </span>
-          </Link>
+    <header className="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="flex items-center justify-between h-14 md:h-16">
+          <Logo />
 
-          {/* User Actions - Desktop */}
-          <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-2 px-4 py-2 bg-primary-foreground/10 rounded-lg">
-              <User className="w-4 h-4" />
-              <span className="text-sm">{user?.name || user?.username}</span>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0 transition-all duration-300 hover:shadow-lg"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
+          {/* Center Navigation */}
+          <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
+            <NavLinks />
+          </div>
+
+          {/* Desktop User Info */}
+          <div className="hidden md:flex items-center">
+            <UserInfo />
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 rounded-lg hover:bg-primary-foreground/10 transition-all duration-300 active:scale-95"
+            className="md:hidden p-2 rounded-lg hover:bg-primary-foreground/10 transition-all duration-300 active:scale-95 cursor-pointer"
             aria-label="Toggle menu"
           >
             {mobileMenuOpen ? (
@@ -60,27 +38,7 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
-        <div
-          className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${
-            mobileMenuOpen ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'
-          }`}
-        >
-          <nav className="flex flex-col gap-2 pt-2 border-t border-primary-foreground/10">
-            <div className="flex items-center gap-2 px-4 py-3 bg-primary-foreground/10 rounded-lg">
-              <User className="w-4 h-4" />
-              <span className="text-sm">{user?.name || user?.username}</span>
-            </div>
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 border-0"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              Logout
-            </Button>
-          </nav>
-        </div>
+        <MobileMenu isOpen={mobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
       </div>
     </header>
   );
