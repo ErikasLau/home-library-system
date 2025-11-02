@@ -135,8 +135,11 @@ export default function LibraryBooksPage() {
               <BookCard
                 key={book.id}
                 book={book}
+                library={library}
                 index={index}
                 onClick={() => navigate(`/library/${libraryId}/book/${book.id}`)}
+                onBookUpdated={refetchBooks}
+                onBookDeleted={refetchBooks}
               />
             ))}
           </div>
