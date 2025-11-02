@@ -68,10 +68,12 @@ export default function LibraryBooksPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[50vh]">
-        <div className="text-center">
-          <BookOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground animate-pulse" />
-          <p className="text-muted-foreground">Loading library...</p>
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-center min-h-[50vh]">
+          <div className="text-center">
+            <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-400 animate-pulse" />
+            <p className="text-gray-600 font-medium">Loading library...</p>
+          </div>
         </div>
       </div>
     );
@@ -79,23 +81,26 @@ export default function LibraryBooksPage() {
 
   if (error || !library) {
     return (
-      <div className="space-y-8">
-        <button onClick={() => navigate('/')} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 hover:-translate-x-1 group">
+      <div className="max-w-7xl mx-auto space-y-8">
+        <button 
+          onClick={() => navigate('/')} 
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:-translate-x-1 group"
+        >
           <ArrowLeft className="w-5 h-5 transition-transform group-hover:scale-110" />
-          <span>Back to Libraries</span>
+          <span className="font-medium">Back to Libraries</span>
         </button>
-        <div className="text-center py-16 bg-destructive/10 rounded-xl border-2 border-destructive/20">
+        <div className="text-center py-16 bg-red-50 rounded-lg border-2 border-red-200">
           {isNotFound ? (
             <>
-              <BookOpen className="w-16 h-16 mx-auto mb-4 text-destructive/50" />
-              <h2 className="text-2xl font-semibold text-destructive mb-2">Library Not Found</h2>
-              <p className="text-muted-foreground mb-4">The library you're looking for doesn't exist or you don't have access to it.</p>
+              <BookOpen className="w-16 h-16 mx-auto mb-4 text-red-300" />
+              <h2 className="text-2xl font-semibold text-red-800 mb-2">Library Not Found</h2>
+              <p className="text-gray-600 mb-4">The library you're looking for doesn't exist or you don't have access to it.</p>
               <Button onClick={() => navigate('/')} variant="outline">Return to Home</Button>
             </>
           ) : (
             <>
-              <p className="text-destructive font-semibold mb-2">Error Loading Library</p>
-              <p className="text-muted-foreground">{error || 'Library not found'}</p>
+              <p className="text-red-800 font-semibold text-lg mb-2">Error Loading Library</p>
+              <p className="text-gray-600">{error || 'Library not found'}</p>
             </>
           )}
         </div>
@@ -108,13 +113,16 @@ export default function LibraryBooksPage() {
   const PrivacyIcon = isPrivate ? Lock : Globe;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <button onClick={() => navigate('/')} className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all duration-300 hover:-translate-x-1 group">
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+      <button 
+        onClick={() => navigate('/')} 
+        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:-translate-x-1 group"
+      >
         <ArrowLeft className="w-5 h-5 transition-transform group-hover:scale-110" />
-        <span>Back to Libraries</span>
+        <span className="font-medium">Back to Libraries</span>
       </button>
 
-      <div className={`rounded-2xl p-8 ${headerBg} border-2 border-border shadow-lg`}>
+      <div className={`rounded-xl p-6 md:p-8 ${headerBg} border border-gray-200 shadow-sm`}>
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
@@ -130,7 +138,10 @@ export default function LibraryBooksPage() {
               <span>{totalBooks} books</span>
             </div>
           </div>
-          <Button onClick={() => setShowAddBookModal(true)} className="bg-primary text-primary-foreground hover:bg-primary/90 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105">
+          <Button 
+            onClick={() => setShowAddBookModal(true)} 
+            className="shadow-sm hover:shadow-md transition-shadow"
+          >
             <Plus className="w-4 h-4 mr-2" />
             Add Book
           </Button>
@@ -139,7 +150,7 @@ export default function LibraryBooksPage() {
 
       {/* Books Grid */}
       <div>
-        <h2 className="mb-6 text-foreground">Books Collection</h2>
+        <h2 className="mb-6 text-2xl font-semibold text-gray-900">Books Collection</h2>
         {books.length > 0 ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
             {books.map((book, index) => (
@@ -149,20 +160,20 @@ export default function LibraryBooksPage() {
                 className="group cursor-pointer space-y-3 animate-in fade-in duration-500"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
-                <div className="aspect-2/3 rounded-lg overflow-hidden shadow-md group-hover:shadow-xl transition-all duration-300 group-hover:scale-105 bg-muted">
+                <div className="aspect-2/3 rounded-lg overflow-hidden shadow-sm group-hover:shadow-md transition-all duration-200 group-hover:scale-[1.02] bg-gray-100">
                   <ImageWithFallback src={book.coverImageUrl || undefined} alt={book.title} className="w-full h-full object-cover" style={{ maxWidth: '100%' }} />
                 </div>
                 <div>
-                  <h4 className="text-sm text-foreground group-hover:text-primary transition-colors duration-300 line-clamp-2">{book.title}</h4>
-                  <p className="text-xs text-muted-foreground line-clamp-1">{book.author}</p>
+                  <h4 className="text-sm font-medium text-gray-900 group-hover:text-gray-700 transition-colors duration-200 line-clamp-2">{book.title}</h4>
+                  <p className="text-xs text-gray-600 line-clamp-1">{book.author}</p>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-16 bg-muted/30 rounded-xl border-2 border-dashed border-border">
-            <BookOpen className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-muted-foreground">No books in this library yet. Add your first book!</p>
+          <div className="text-center py-20 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+            <BookOpen className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <p className="text-gray-600 text-lg">No books in this library yet. Add your first book!</p>
           </div>
         )}
       </div>
