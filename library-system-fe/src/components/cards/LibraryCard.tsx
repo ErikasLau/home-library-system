@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { Link } from 'react-router';
-import { Lock, Globe, Eye, Pencil, Trash2 } from 'lucide-react';
+import { Lock, Globe, Eye, Pencil, Trash2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
 import UpdateLibraryModal from '../modals/libraries/UpdateLibraryModal';
 import ConfirmationModal from '../modals/shared/ConfirmationModal';
 import { libraryService } from '../../services';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { Library } from '../../types/api';
 
 interface LibraryCardProps {
@@ -19,17 +20,17 @@ export default function LibraryCard({ library, onLibraryUpdated, onLibraryDelete
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { canEditLibrary, canDeleteLibrary } = usePermissions();
   const isPrivate = library.privacyStatus === 'PRIVATE';
   const PrivacyIcon = isPrivate ? Lock : Globe;
+  const canEdit = canEditLibrary(library);
+  const canDelete = canDeleteLibrary(library);
   
-  // Convert hex color to rgba with transparency
   const getTransparentColor = (color: string | undefined) => {
-    if (!color) return 'rgb(249 250 251)'; // fallback to gray-50
+    if (!color) return 'rgb(249 250 251)';
     
-    // Remove # if present
     const hex = color.replace('#', '');
     
-    // Convert hex to RGB
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
@@ -85,7 +86,11 @@ export default function LibraryCard({ library, onLibraryUpdated, onLibraryDelete
               {library.privacyStatus}
             </Badge>
           </div>
-          <p className="text-gray-600 text-sm line-clamp-2">{library.description}</p>
+          <p className="text-gray-600 text-sm line-clamp-2 mb-3">{library.description}</p>
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <User className="w-3 h-3" />
+            <span>{library.creator.username}</span>
+          </div>
         </div>
 
         <div className="p-6 flex gap-2 items-center">
@@ -97,20 +102,24 @@ export default function LibraryCard({ library, onLibraryUpdated, onLibraryDelete
               View Books
             </Button>
           </Link>
-          <Button
-            onClick={() => setShowUpdateModal(true)}
-            className="p-0 w-10 h-10 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
-            title="Update library"
-          >
-            <Pencil className="w-4 h-4" />
-          </Button>
-          <Button
-            onClick={() => setShowDeleteModal(true)}
-            className="p-0 w-10 h-10 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all"
-            title="Delete library"
-          >
-            <Trash2 className="w-4 h-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowUpdateModal(true)}
+              className="p-0 w-10 h-10 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
+              title="Update library"
+            >
+              <Pencil className="w-4 h-4" />
+            </Button>
+          )}
+          {canDelete && (
+            <Button
+              onClick={() => setShowDeleteModal(true)}
+              className="p-0 w-10 h-10 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all"
+              title="Delete library"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
+          )}
         </div>
       </div>
 

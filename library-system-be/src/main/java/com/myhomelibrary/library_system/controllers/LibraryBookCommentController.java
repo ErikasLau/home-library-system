@@ -8,8 +8,8 @@ import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.CommentRepository;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import com.myhomelibrary.library_system.security.SecurityUtils;
+import com.myhomelibrary.library_system.services.AccessControl;
 import com.myhomelibrary.library_system.services.CommentService;
-import com.myhomelibrary.library_system.services.GenericAccessService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -32,7 +32,6 @@ public class LibraryBookCommentController {
     private final CommentService commentService;
     private final CommentRepository commentRepository;
     private final LibraryRepository libraryRepository;
-    private final GenericAccessService genericAccessService;
 
     @GetMapping
     @Operation(summary = "Get comments for book", description = "Returns all comments for a specific book in a library.")
@@ -54,7 +53,7 @@ public class LibraryBookCommentController {
         UUID libUuid = parseUuid(libraryId);
         UUID bookUuid = parseUuid(bookId);
         UUID commentUuid = parseUuid(id);
-        genericAccessService.assertOwnerOrModeratorOrAdmin(libraryRepository::findLibraryById, libUuid);
+        AccessControl.requireLibraryAccess(libraryRepository::findLibraryById, libUuid);
         return Response.success(commentService.getCommentByIdInLibraryBook(libUuid, bookUuid, commentUuid));
     }
 
@@ -67,7 +66,7 @@ public class LibraryBookCommentController {
     public Response<Comment> createComment(@PathVariable String libraryId, @PathVariable String bookId, @Valid @RequestBody CommentRequest commentRequest) {
         UUID libUuid = parseUuid(libraryId);
         UUID bookUuid = parseUuid(bookId);
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libUuid);
+        AccessControl.requireLibraryAccess(libraryRepository::findLibraryById, libUuid);
         return Response.success(commentService.createCommentInLibraryBook(libUuid, bookUuid, commentRequest, SecurityUtils.getAuthenticatedUserPk()));
     }
 
@@ -81,7 +80,7 @@ public class LibraryBookCommentController {
         UUID libUuid = parseUuid(libraryId);
         UUID bookUuid = parseUuid(bookId);
         UUID commentUuid = parseUuid(id);
-        genericAccessService.assertOwnerOrModeratorOrAdmin(commentRepository::findCommentById, commentUuid);
+        AccessControl.requireCommentPermissions(commentRepository::findCommentById, commentUuid, libraryRepository::findLibraryById, libUuid);
         UUID deleted = commentService.deleteCommentByIdInLibraryBook(libUuid, bookUuid, commentUuid);
         return Response.success(deleted.toString());
     }
@@ -96,7 +95,7 @@ public class LibraryBookCommentController {
         UUID libUuid = parseUuid(libraryId);
         UUID bookUuid = parseUuid(bookId);
         UUID commentUuid = parseUuid(id);
-        genericAccessService.assertOwnerOrAdmin(commentRepository::findCommentById, commentUuid);
+        AccessControl.requireCommentPermissions(commentRepository::findCommentById, commentUuid, libraryRepository::findLibraryById, libUuid);
         return Response.success(commentService.updateCommentInLibraryBook(libUuid, bookUuid, commentUuid, commentUpdateRequest));
     }
 

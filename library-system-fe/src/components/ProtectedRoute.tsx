@@ -9,7 +9,6 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading } = useAuth();
 
-  // Show loading state while verifying session
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">

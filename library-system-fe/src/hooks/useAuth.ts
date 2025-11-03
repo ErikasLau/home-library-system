@@ -1,5 +1,3 @@
-// Custom hook for authentication with user store integration
-
 import { useState, useCallback } from 'react';
 import { authService } from '../services';
 import { useUser } from '../store';
@@ -32,16 +30,13 @@ export function useAuth() {
     setError(null);
     
     try {
-      // Register the user
       await authService.register(data);
       
-      // After registration, automatically log in
       const result = await authService.login({
         email: data.email,
         password: data.password,
       });
       
-      // Store the user from login response
       setUser(result.user);
       return true;
     } catch (err) {

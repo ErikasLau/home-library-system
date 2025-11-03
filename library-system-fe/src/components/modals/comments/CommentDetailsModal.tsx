@@ -2,11 +2,12 @@ import { useEffect, useState } from 'react';
 import { X, Star, MessageSquare, User, Trash2, Pencil } from 'lucide-react';
 import { Button } from '../../ui/button';
 import { UpdateCommentModal } from '../comments';
-import type { Book } from '../../../types/api';
+import { usePermissions } from '../../../hooks/usePermissions';
+import type { Book, Library } from '../../../types/api';
 
 interface CommentDetailsModalProps {
   comment: Book['comments'][0];
-  currentUserId?: string;
+  library: Library;
   libraryId: string;
   bookId: string;
   onClose: () => void;
@@ -29,7 +30,7 @@ const formatDate = (dateString: string) => {
 
 export default function CommentDetailsModal({ 
   comment, 
-  currentUserId, 
+  library,
   libraryId,
   bookId,
   onClose, 
@@ -37,7 +38,9 @@ export default function CommentDetailsModal({
   onUpdate
 }: CommentDetailsModalProps) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
-  const canEdit = currentUserId && currentUserId === comment.user.id;
+  const { canEditComment, canDeleteComment } = usePermissions();
+  const canEdit = canEditComment(comment, library);
+  const canDelete = canDeleteComment(comment, library);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -137,25 +140,25 @@ export default function CommentDetailsModal({
             Close
           </Button>
           {canEdit && (
-            <>
-              <Button
-                onClick={() => setShowUpdateModal(true)}
-                className="p-0 w-11 h-11 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
-                title="Update comment"
-              >
-                <Pencil className="w-4 h-4" />
-              </Button>
-              <Button
-                onClick={() => {
-                  onDelete(comment.id);
-                  onClose();
-                }}
-                className="p-0 w-11 h-11 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all"
-                title="Delete comment"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </>
+            <Button
+              onClick={() => setShowUpdateModal(true)}
+              className="p-0 w-11 h-11 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
+              title="Update comment"
+            >
+              <Pencil className="w-4 h-4" />
+            </Button>
+          )}
+          {canDelete && (
+            <Button
+              onClick={() => {
+                onDelete(comment.id);
+                onClose();
+              }}
+              className="p-0 w-11 h-11 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all"
+              title="Delete comment"
+            >
+              <Trash2 className="w-4 h-4" />
+            </Button>
           )}
         </div>
       </div>

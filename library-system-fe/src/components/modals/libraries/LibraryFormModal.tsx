@@ -52,7 +52,6 @@ export default function LibraryFormModal({ onClose, onSuccess, library, mode }: 
     },
   });
 
-  // Close modal on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();

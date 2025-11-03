@@ -1,5 +1,3 @@
-// Generic API hook with loading and error states
-
 import { useState, useCallback } from 'react';
 import type { ApiError } from '../types/api';
 
@@ -48,7 +46,6 @@ export function useApi<T, Args extends any[] = []>(
   };
 }
 
-// Specialized hook for mutations (create, update, delete)
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useMutation<T, Args extends any[] = []>(
   mutationFunction: (...args: Args) => Promise<T>

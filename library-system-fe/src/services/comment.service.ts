@@ -1,5 +1,3 @@
-// Comment Service
-
 import { apiClient } from './api-client';
 import type {
   Response,
@@ -9,10 +7,6 @@ import type {
 } from '../types/api';
 
 export const commentService = {
-  /**
-   * Get all comments for a book
-   * GET /v1/library/{libraryId}/books/{bookId}/comments
-   */
   getCommentsByBook: async (libraryId: string, bookId: string): Promise<Comment[]> => {
     const response = await apiClient.get<Response<Comment[]>>(
       `/v1/library/${libraryId}/books/${bookId}/comments`
@@ -20,10 +14,6 @@ export const commentService = {
     return response.data;
   },
 
-  /**
-   * Get comment by ID
-   * GET /v1/library/{libraryId}/books/{bookId}/comments/{id}
-   */
   getCommentById: async (
     libraryId: string,
     bookId: string,
@@ -35,10 +25,6 @@ export const commentService = {
     return response.data;
   },
 
-  /**
-   * Create a new comment
-   * POST /v1/library/{libraryId}/books/{bookId}/comments
-   */
   createComment: async (
     libraryId: string,
     bookId: string,
@@ -51,10 +37,6 @@ export const commentService = {
     return response.data;
   },
 
-  /**
-   * Update comment
-   * PUT /v1/library/{libraryId}/books/{bookId}/comments/{id}
-   */
   updateComment: async (
     libraryId: string,
     bookId: string,
@@ -68,11 +50,6 @@ export const commentService = {
     return response.data;
   },
 
-  /**
-   * Delete comment
-   * DELETE /v1/library/{libraryId}/books/{bookId}/comments/{id}
-   * Note: Returns raw UUID (not wrapped in Response)
-   */
   deleteComment: async (
     libraryId: string,
     bookId: string,

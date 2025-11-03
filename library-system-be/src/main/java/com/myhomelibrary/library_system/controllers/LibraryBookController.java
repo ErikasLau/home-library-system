@@ -6,8 +6,8 @@ import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.BookRepository;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import com.myhomelibrary.library_system.security.SecurityUtils;
+import com.myhomelibrary.library_system.services.AccessControl;
 import com.myhomelibrary.library_system.services.BookService;
-import com.myhomelibrary.library_system.services.GenericAccessService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -30,16 +30,15 @@ public class LibraryBookController {
     private final BookService bookService;
     private final BookRepository bookRepository;
     private final LibraryRepository libraryRepository;
-    private final GenericAccessService genericAccessService;
 
     @GetMapping
     @Operation(summary = "Get books in library", description = "Returns all books for the specified library.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Books retrieved successfully"),
     })
-    public Response<List<BookShort>> getBooks(@PathVariable String libraryId) {
+    public Response<List<BookShort>> getBooksInLibrary(@PathVariable String libraryId) {
         UUID libUuid = parseUuid(libraryId);
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libUuid);
+        AccessControl.requireLibraryAccess(libraryRepository::findLibraryById, libUuid);
         return Response.success(bookService.getAllBooksByLibraryId(libUuid));
     }
 
@@ -51,7 +50,7 @@ public class LibraryBookController {
     public Response<BookWithComments> getBookById(@PathVariable String libraryId, @PathVariable String id) {
         UUID libUuid = parseUuid(libraryId);
         UUID bookUuid = parseUuid(id);
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libUuid);
+        AccessControl.requireBookViewPermissions(bookRepository::findBookById, bookUuid, libraryRepository::findLibraryById, libUuid);
         return Response.success(bookService.getBookByIdInLibrary(libUuid, bookUuid));
     }
 
@@ -63,7 +62,7 @@ public class LibraryBookController {
     })
     public Response<Book> createBook(@PathVariable String libraryId, @Valid @RequestBody BookRequest bookRequest) {
         UUID libUuid = parseUuid(libraryId);
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libUuid);
+        AccessControl.requireLibraryAccess(libraryRepository::findLibraryById, libUuid);
         return Response.success(bookService.createBookInLibrary(libUuid, bookRequest, SecurityUtils.getAuthenticatedUserPk()));
     }
 
@@ -74,9 +73,10 @@ public class LibraryBookController {
             @ApiResponse(responseCode = "200", description = "Book deleted successfully"),
     })
     public Response<String> deleteBook(@PathVariable String libraryId, @PathVariable String id) {
+        UUID libUuid = parseUuid(libraryId);
         UUID bookUuid = parseUuid(id);
-        genericAccessService.assertOwnerOrAdmin(bookRepository::findBookById, bookUuid);
-        UUID deleted = bookService.deleteBookByIdInLibrary(parseUuid(libraryId), bookUuid);
+        AccessControl.requireBookPermissions(bookRepository::findBookById, bookUuid, libraryRepository::findLibraryById, libUuid);
+        UUID deleted = bookService.deleteBookByIdInLibrary(libUuid, bookUuid);
         return Response.success(deleted.toString());
     }
 
@@ -89,7 +89,7 @@ public class LibraryBookController {
     public Response<BookWithComments> updateBook(@PathVariable String libraryId, @PathVariable String id, @Valid @RequestBody BookUpdateRequest bookUpdateRequest) {
         UUID libUuid = parseUuid(libraryId);
         UUID bookUuid = parseUuid(id);
-        genericAccessService.assertOwnerOrAdmin(bookRepository::findBookById, bookUuid);
+        AccessControl.requireBookPermissions(bookRepository::findBookById, bookUuid, libraryRepository::findLibraryById, libUuid);
         return Response.success(bookService.updateBookInLibrary(libUuid, bookUuid, bookUpdateRequest));
     }
 

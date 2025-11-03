@@ -5,14 +5,17 @@ import { Button } from '../components/ui/button';
 import { BookInfo, CommentForm, CommentList } from '../components/books';
 import { toast } from 'sonner';
 import { useAuth } from '../hooks/useAuth';
-import { bookService, commentService } from '../services';
-import type { Book } from '../types/api';
+import { usePermissions } from '../hooks/usePermissions';
+import { bookService, commentService, libraryService } from '../services';
+import type { Book, Library } from '../types/api';
 
 export default function BookDetailsPage() {
   const { libraryId, bookId } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { canAddComment } = usePermissions();
   const [book, setBook] = useState<Book | null>(null);
+  const [library, setLibrary] = useState<Library | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNotFound, setIsNotFound] = useState(false);
@@ -29,8 +32,12 @@ export default function BookDetailsPage() {
         setLoading(true);
         setError(null);
         setIsNotFound(false);
-        const bookData = await bookService.getBookById(libraryId, bookId);
+        const [bookData, libraryData] = await Promise.all([
+          bookService.getBookById(libraryId, bookId),
+          libraryService.getLibraryById(libraryId)
+        ]);
         setBook(bookData);
+        setLibrary(libraryData);
       } catch (err) {
         const apiError = err as { status?: number; message?: string };
         if (apiError?.status === 404) {
@@ -54,7 +61,6 @@ export default function BookDetailsPage() {
       await commentService.createComment(libraryId, bookId, data);
       toast.success('Comment posted successfully!');
       
-      // Refresh book data to get updated comments
       const bookData = await bookService.getBookById(libraryId, bookId);
       setBook(bookData);
     } catch (err) {
@@ -70,7 +76,6 @@ export default function BookDetailsPage() {
       await commentService.deleteComment(libraryId, bookId, commentId);
       toast.success('Comment deleted successfully!');
       
-      // Refresh book data to get updated comments
       const bookData = await bookService.getBookById(libraryId, bookId);
       setBook(bookData);
     } catch (err) {
@@ -149,26 +154,35 @@ export default function BookDetailsPage() {
           </h2>
         </div>
 
-        <div className="mb-8 p-6 bg-white rounded-lg border border-gray-200">
-          <CommentForm 
-            onSubmit={handleAddComment} 
-            isAuthenticated={!!user} 
-          />
-        </div>
+        {library && canAddComment(library) && (
+          <div className="mb-8 p-6 bg-white rounded-lg border border-gray-200">
+            <CommentForm 
+              onSubmit={handleAddComment} 
+              isAuthenticated={!!user} 
+            />
+          </div>
+        )}
 
-        <CommentList 
-          comments={book.comments} 
-          currentUserId={user?.id}
-          libraryId={libraryId!}
-          bookId={bookId!}
-          onDeleteComment={handleDeleteComment}
-          onUpdateComment={async () => {
-            // Refresh book data after update
-            if (!libraryId || !bookId) return;
-            const bookData = await bookService.getBookById(libraryId, bookId);
-            setBook(bookData);
-          }}
-        />
+        {library && !canAddComment(library) && user && (
+          <div className="mb-8 p-6 bg-gray-50 rounded-lg border border-gray-200 text-center">
+            <p className="text-gray-600">Comments are disabled for private libraries unless you're the owner</p>
+          </div>
+        )}
+
+        {library && (
+          <CommentList 
+            comments={book.comments} 
+            library={library}
+            libraryId={libraryId!}
+            bookId={bookId!}
+            onDeleteComment={handleDeleteComment}
+            onUpdateComment={async () => {
+              if (!libraryId || !bookId) return;
+              const bookData = await bookService.getBookById(libraryId, bookId);
+              setBook(bookData);
+            }}
+          />
+        )}
       </div>
     </div>
   );

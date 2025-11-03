@@ -1,3 +1,2 @@
-// Store exports
-export { UserProvider } from './UserContext';
+export * from './UserContext';
 export { useUser } from './useUser';

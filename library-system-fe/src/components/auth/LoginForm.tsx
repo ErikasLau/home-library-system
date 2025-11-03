@@ -42,7 +42,6 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 
   useEffect(() => {
     if (error) {
-      // Show only the title if available, otherwise fall back to message
       const errorMessage = error.title || error.message || 'An error occurred';
       
       toast.error(errorMessage, {

@@ -6,6 +6,7 @@ import { Button } from '../ui/button';
 import UpdateBookModal from '../modals/books/UpdateBookModal';
 import ConfirmationModal from '../modals/shared/ConfirmationModal';
 import { bookService } from '../../services';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { BookShort, Library } from '../../types/api';
 
 interface BookCardProps {
@@ -21,9 +22,12 @@ export default function BookCard({ book, library, onClick, index = 0, onBookUpda
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const { canEditBook, canDeleteBook } = usePermissions();
   
   const releaseYear = book.releaseDate ? new Date(book.releaseDate).getFullYear() : null;
   const badgeText = [book.language, releaseYear].filter(Boolean).join(' • ');
+  const canEdit = canEditBook(book, library);
+  const canDelete = canDeleteBook(book, library);
 
   const handleUpdateClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -72,22 +76,28 @@ export default function BookCard({ book, library, onClick, index = 0, onBookUpda
             className="w-full h-full object-cover object-center"
           />
           
-          <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
-            <Button
-              onClick={handleUpdateClick}
-              className="p-0 w-8 h-8 bg-white/90 text-gray-800 hover:bg-white shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
-              title="Update book"
-            >
-              <Pencil className="w-3.5 h-3.5" />
-            </Button>
-            <Button
-              onClick={handleDeleteClick}
-              className="p-0 w-8 h-8 bg-red-500/90 text-white hover:bg-red-600 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
-              title="Delete book"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </Button>
-          </div>
+          {(canEdit || canDelete) && (
+            <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+              {canEdit && (
+                <Button
+                  onClick={handleUpdateClick}
+                  className="p-0 w-8 h-8 bg-white/90 text-gray-800 hover:bg-white shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
+                  title="Update book"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </Button>
+              )}
+              {canDelete && (
+                <Button
+                  onClick={handleDeleteClick}
+                  className="p-0 w-8 h-8 bg-red-500/90 text-white hover:bg-red-600 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
+                  title="Delete book"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </Button>
+              )}
+            </div>
+          )}
           
           {badgeText && (
             <div className="absolute bottom-2 right-2 bg-black/75 text-white text-xs px-2 py-1 rounded backdrop-blur-sm">

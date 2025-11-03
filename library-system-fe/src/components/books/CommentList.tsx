@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Star, MessageSquare, User } from 'lucide-react';
 import { CommentDetailsModal } from '../modals/comments';
-import type { Book } from '../../types/api';
+import type { Book, Library } from '../../types/api';
 
 interface CommentListProps {
   comments: Book['comments'];
-  currentUserId?: string;
+  library: Library;
   libraryId: string;
   bookId: string;
   onDeleteComment: (commentId: string) => void;
@@ -19,7 +19,7 @@ const trimText = (text: string, maxLength: number = 150) => {
 
 export default function CommentList({ 
   comments, 
-  currentUserId, 
+  library,
   libraryId, 
   bookId, 
   onDeleteComment, 
@@ -74,7 +74,7 @@ export default function CommentList({
       {selectedComment && (
         <CommentDetailsModal
           comment={selectedComment}
-          currentUserId={currentUserId}
+          library={library}
           libraryId={libraryId}
           bookId={bookId}
           onClose={() => setSelectedComment(null)}

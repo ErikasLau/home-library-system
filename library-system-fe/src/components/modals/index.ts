@@ -1,4 +1,3 @@
-// Book modals
 export { 
   AddBookModal, 
   UpdateBookModal, 
@@ -8,7 +7,6 @@ export {
 } from './books';
 export type { BookFormData } from './books';
 
-// Library modals
 export { 
   AddLibraryModal, 
   UpdateLibraryModal, 
@@ -17,5 +15,4 @@ export {
 } from './libraries';
 export type { LibraryFormData } from './libraries';
 
-// Shared modals
 export { ConfirmationModal } from './shared';

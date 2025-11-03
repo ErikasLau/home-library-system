@@ -1,5 +1,3 @@
-// Authentication Service
-
 import { apiClient, tokenManager } from './api-client';
 import type {
   Response,
@@ -15,62 +13,35 @@ interface LoginResult {
 }
 
 export const authService = {
-  /**
-   * Register a new user
-   * POST /auth/register
-   * Returns the created user
-   */
   register: async (data: RegistrationRequest): Promise<User> => {
     const response = await apiClient.post<Response<User>>('/auth/register', data);
     return response.data;
   },
 
-  /**
-   * Login user and store JWT token
-   * POST /auth/login
-   * Returns token and user info from the response
-   */
   login: async (data: LoginRequest): Promise<LoginResult> => {
     const response = await apiClient.post<Response<LoginResponse>>('/auth/login', data);
     const { token, user } = response.data;
     
-    // Store token in localStorage
     tokenManager.set(token);
     
-    // Return both token and user info from the login response
     return {
       token,
       user,
     };
   },
 
-  /**
-   * Logout user by removing JWT token
-   */
   logout: (): void => {
     tokenManager.remove();
   },
 
-  /**
-   * Check if user is authenticated
-   */
   isAuthenticated: (): boolean => {
     return tokenManager.isAuthenticated();
   },
 
-  /**
-   * Get current token
-   */
   getToken: (): string | null => {
     return tokenManager.get();
   },
 
-  /**
-   * Verify current user session and get user details
-   * GET /auth/me
-   * Returns current user info if token is valid
-   * Throws 401 if token is expired or invalid
-   */
   verifySession: async (): Promise<User> => {
     const response = await apiClient.get<Response<User>>('/auth/me');
     return response.data;

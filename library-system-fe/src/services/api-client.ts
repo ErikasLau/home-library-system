@@ -6,7 +6,6 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localho
 
 const TOKEN_KEY = 'auth_token';
 
-// In-memory fallback for environments without localStorage
 class TokenStorage {
   private inMemoryToken: string | null = null;
   private hasLocalStorage: boolean;
@@ -54,7 +53,6 @@ class TokenStorage {
 
 export const tokenManager = new TokenStorage();
 
-// Define error response interface for better type safety
 interface ErrorResponse {
   status?: string;
   message?: string;
@@ -72,7 +70,6 @@ interface ErrorResponse {
   details?: string;
 }
 
-// Create axios instance
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000, // 30 seconds
@@ -82,21 +79,17 @@ const axiosInstance = axios.create({
   },
 });
 
-// List of endpoints that don't require authentication
 const PUBLIC_ENDPOINTS = ['/auth/login', '/auth/register'];
 
-// Helper to check if endpoint is public
 const isPublicEndpoint = (url?: string): boolean => {
   if (!url) return false;
   return PUBLIC_ENDPOINTS.some(endpoint => url.includes(endpoint));
 };
 
-// Request interceptor to add token to all requests
 axiosInstance.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = tokenManager.get();
     
-    // Add token to request if it exists and endpoint is not public
     if (token && !isPublicEndpoint(config.url)) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -108,10 +101,8 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Track if we're currently verifying the session to avoid infinite loops
 let isVerifyingSession = false;
 
-// Response interceptor to handle errors
 axiosInstance.interceptors.response.use(
   (response) => {
     return response;
@@ -127,7 +118,6 @@ axiosInstance.interceptors.response.use(
       const isAuthMeEndpoint = error.config?.url?.includes('/auth/me');
       
       if (!isAuthEndpoint) {
-        // If this is already the /auth/me verification call, just logout
         if (isAuthMeEndpoint) {
           tokenManager.remove();
           if (!window.location.pathname.includes('/login')) {
@@ -137,21 +127,17 @@ axiosInstance.interceptors.response.use(
           return Promise.reject(apiError);
         }
         
-        // For other endpoints, verify with /auth/me first (if not already verifying)
         if (!isVerifyingSession) {
           try {
             isVerifyingSession = true;
-            // Try to verify the session
             await axiosInstance.get('/auth/me');
             isVerifyingSession = false;
             
-            // If /auth/me succeeds, retry the original request
             if (error.config) {
               return axiosInstance.request(error.config);
             }
           } catch {
             isVerifyingSession = false;
-            // /auth/me failed (401), so logout the user
             tokenManager.remove();
             if (!window.location.pathname.includes('/login')) {
               window.location.href = '/login';
@@ -160,7 +146,6 @@ axiosInstance.interceptors.response.use(
             return Promise.reject(apiError);
           }
         } else {
-          // Already verifying, just logout to avoid loops
           tokenManager.remove();
           if (!window.location.pathname.includes('/login')) {
             window.location.href = '/login';
@@ -174,15 +159,13 @@ axiosInstance.interceptors.response.use(
     if (error.response?.data) {
       const errorData = error.response.data;
       
-      // Priority 1: Check nested data field (most common for Spring Boot errors)
       if (errorData.data) {
         if (errorData.data.title) {
           apiError.title = errorData.data.title;
-          apiError.message = errorData.data.title; // Use title as the main message
+          apiError.message = errorData.data.title;
         }
         if (errorData.data.details) {
           apiError.details = errorData.data.details;
-          // If no title, use details as message
           if (!apiError.title) {
             apiError.message = errorData.data.details;
           }
@@ -192,7 +175,6 @@ axiosInstance.interceptors.response.use(
         }
       }
       
-      // Priority 2: Check error field
       if (errorData.error) {
         apiError.error = errorData.error;
         if (!apiError.message || apiError.message === 'An error occurred') {
@@ -200,22 +182,18 @@ axiosInstance.interceptors.response.use(
         }
       }
       
-      // Priority 3: Check direct message
       if (errorData.message && (!apiError.message || apiError.message === 'An error occurred')) {
         apiError.message = errorData.message;
       }
       
-      // Priority 4: Check direct errors array
       if (errorData.errors && !apiError.errors) {
         apiError.errors = errorData.errors;
       }
       
-      // Priority 5: Check direct details
       if (errorData.details && !apiError.details) {
         apiError.details = errorData.details;
       }
     } else if (error.message) {
-      // Network error or other non-response error
       if (error.message === 'Network Error') {
         apiError.message = 'Unable to connect to server. Please check your internet connection.';
       } else if (error.code === 'ECONNABORTED') {
@@ -229,7 +207,6 @@ axiosInstance.interceptors.response.use(
   }
 );
 
-// Convenience methods using axios
 export const apiClient = {
   get: async <T>(
     endpoint: string, 
@@ -275,5 +252,4 @@ export const apiClient = {
   },
 };
 
-// Export axios instance for advanced use cases
 export { axiosInstance };

@@ -59,8 +59,20 @@ public class CommentService {
         var bookEntity = bookRepository.findBookByIdAndLibrary_Id(bookId, libraryId).orElseThrow(NotFoundException::new);
         var commentEntity = commentRepository.findCommentById(commentId).orElseThrow(NotFoundException::new);
         if (!commentEntity.getBook().getPk().equals(bookEntity.getPk())) throw new NotFoundException();
+
+        // Store the ID before deletion
+        UUID commentUuid = commentEntity.getId();
+
+        // Remove comment from book's collection to trigger orphan removal
+        if (bookEntity.getComments() != null) {
+            bookEntity.getComments().removeIf(comment -> comment.getPk().equals(commentEntity.getPk()));
+        }
+
+        // Delete the comment entity and flush to ensure immediate deletion
         commentRepository.deleteById(commentEntity.getPk());
-        return commentEntity.getId();
+        commentRepository.flush();
+
+        return commentUuid;
     }
 
     @Transactional

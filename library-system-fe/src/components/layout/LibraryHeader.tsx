@@ -2,6 +2,7 @@ import { Plus, Lock, Globe, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
+import { usePermissions } from '../../hooks/usePermissions';
 import type { Library } from '../../types/api';
 
 interface LibraryHeaderProps {
@@ -10,8 +11,11 @@ interface LibraryHeaderProps {
 }
 
 export default function LibraryHeader({ library, onAddBook }: LibraryHeaderProps) {
+  const { canAddBook } = usePermissions();
   const isPrivate = library.privacyStatus === 'PRIVATE';
   const PrivacyIcon = isPrivate ? Lock : Globe;
+  
+  const canAddBooks = canAddBook(library);
 
   const handleShare = async () => {
     const url = `${window.location.origin}/library/${library.id}`;
@@ -28,14 +32,11 @@ export default function LibraryHeader({ library, onAddBook }: LibraryHeaderProps
     }
   };
 
-  // Convert hex color to rgba with transparency
   const getTransparentColor = (color: string | undefined) => {
-    if (!color) return 'rgb(249 250 251)'; // fallback to gray-50
+    if (!color) return 'rgb(249 250 251)';
     
-    // Remove # if present
     const hex = color.replace('#', '');
     
-    // Convert hex to RGB
     const r = parseInt(hex.substring(0, 2), 16);
     const g = parseInt(hex.substring(2, 4), 16);
     const b = parseInt(hex.substring(4, 6), 16);
@@ -81,13 +82,15 @@ export default function LibraryHeader({ library, onAddBook }: LibraryHeaderProps
                 Share
               </Button>
             )}
-            <Button 
-              onClick={onAddBook}
-              className="bg-black text-white hover:bg-gray-800 shadow-sm hover:shadow-md transition-all"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Book
-            </Button>
+            {canAddBooks && (
+              <Button 
+                onClick={onAddBook}
+                className="bg-black text-white hover:bg-gray-800 shadow-sm hover:shadow-md transition-all"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Book
+              </Button>
+            )}
           </div>
         </div>
       </div>

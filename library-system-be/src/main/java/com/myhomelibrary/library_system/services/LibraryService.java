@@ -1,10 +1,12 @@
 package com.myhomelibrary.library_system.services;
 
 import com.myhomelibrary.library_system.converters.LibraryConverter;
+import com.myhomelibrary.library_system.domains.enums.LibraryPrivacyStatus;
 import com.myhomelibrary.library_system.domains.library.Library;
 import com.myhomelibrary.library_system.domains.library.LibraryRequest;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
+import com.myhomelibrary.library_system.security.SecurityUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +48,25 @@ public class LibraryService {
                     return result != 0 ? result : l2.createdAt().compareTo(l1.createdAt());
                 })
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Library> getAllLibrariesBasedOnRole(Long userPk) {
+        if (SecurityUtils.isCurrentUserAdmin() || SecurityUtils.isCurrentUserModerator()) {
+            // Admin and Moderator get all libraries (public + private)
+            return getAllLibraries();
+        } else {
+            // Members get only public libraries excluding their own
+            return libraryRepository.findAllByPrivacyStatus(LibraryPrivacyStatus.PUBLIC)
+                    .stream()
+                    .filter(entity -> !entity.getOwnerId().equals(userPk))
+                    .map(libraryConverter::toLibrary)
+                    .sorted((l1, l2) -> {
+                        int result = l2.updatedAt().compareTo(l1.updatedAt());
+                        return result != 0 ? result : l2.createdAt().compareTo(l1.createdAt());
+                    })
+                    .toList();
+        }
     }
 
     @Transactional

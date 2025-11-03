@@ -1,5 +1,3 @@
-// Error handling utilities
-
 import type { ApiError } from '../types/api';
 
 /**
@@ -10,12 +8,10 @@ export function formatApiError(error: unknown): string {
 
   const apiError = error as ApiError;
 
-  // Handle new error format with error object
   if (apiError.error) {
     return apiError.error.message;
   }
 
-  // If we have validation errors array, format them
   if (apiError.errors && Array.isArray(apiError.errors)) {
     const errorMessages = apiError.errors
       .map((e) => `${e.field}: ${e.message}`)
@@ -23,7 +19,6 @@ export function formatApiError(error: unknown): string {
     return errorMessages || apiError.message;
   }
 
-  // Handle specific status codes
   switch (apiError.status) {
     case 400:
       return apiError.message || 'Invalid request. Please check your input.';

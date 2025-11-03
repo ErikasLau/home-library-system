@@ -1,5 +1,3 @@
-// Custom hook to access user context
-
 import { useContext } from 'react';
 import { UserContext } from './UserContext';
 

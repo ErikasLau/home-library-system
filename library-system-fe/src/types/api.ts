@@ -1,8 +1,5 @@
-// API Type Definitions
-
-// Generic Response Wrapper
 export interface Response<T> {
-  status: string; // "OK", "ERROR", etc.
+  status: string;
   data: T;
   error?: {
     code: string;
@@ -10,20 +7,17 @@ export interface Response<T> {
   };
 }
 
-// User Short - for creator references
 export interface UserShort {
   id: string;
   username: string;
 }
-
-// Authentication
 export interface RegistrationRequest {
   email: string;
   password: string;
   name: string;
   surname: string;
   username: string;
-  dateOfBirth: string; // Format: YYYY-MM-DD
+  dateOfBirth: string;
 }
 
 export interface LoginRequest {
@@ -43,11 +37,9 @@ export interface User {
   surname: string;
   username: string;
   email: string;
-  dateOfBirth: string; // Format: YYYY-MM-DD
-  role: 'MEMBER' | 'ADMIN';
+  dateOfBirth: string;
+  role: 'MEMBER' | 'ADMIN' | 'MODERATOR';
 }
-
-// Library
 export interface Library {
   id: string;
   title: string;
@@ -67,7 +59,6 @@ export interface LibraryRequest {
   privacyStatus?: 'PUBLIC' | 'PRIVATE';
 }
 
-// Book
 export interface BookShort {
   id: string;
   title: string;
@@ -114,7 +105,7 @@ export interface BookRequest {
   title: string;
   author?: string;
   isbn?: string;
-  releaseDate?: string; // Format: YYYY-MM-DD
+  releaseDate?: string;
   description?: string;
   language?: string;
   pages?: number;
@@ -127,7 +118,7 @@ export interface BookUpdateRequest {
   title?: string;
   author?: string;
   isbn?: string;
-  releaseDate?: string; // Format: YYYY-MM-DD
+  releaseDate?: string;
   description?: string;
   language?: string;
   pages?: number;
@@ -135,8 +126,6 @@ export interface BookUpdateRequest {
   genre?: string;
   coverImageUrl?: string;
 }
-
-// Comment
 export interface Comment {
   id: string;
   content: string;
@@ -157,7 +146,6 @@ export interface CommentUpdateRequest {
   rating?: number;
 }
 
-// Error Response
 export interface ApiError {
   message: string;
   status: number;

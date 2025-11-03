@@ -1,5 +1,6 @@
 package com.myhomelibrary.library_system.repositories;
 
+import com.myhomelibrary.library_system.domains.enums.LibraryPrivacyStatus;
 import com.myhomelibrary.library_system.entities.LibraryEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -20,4 +21,7 @@ public interface LibraryRepository extends JpaRepository<LibraryEntity, Long> {
     @EntityGraph(attributePaths = {"owner"})
     @Override
     List<LibraryEntity> findAll();
+
+    @EntityGraph(attributePaths = {"owner"})
+    List<LibraryEntity> findAllByPrivacyStatus(LibraryPrivacyStatus privacyStatus);
 }

@@ -1,5 +1,3 @@
-// User Context Store for managing authenticated user state
-
 import { createContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { User } from '../types/api';
@@ -29,7 +27,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // Sync user with localStorage
   const setUser = (newUser: User | null) => {
     setUserState(newUser);
     if (newUser) {
@@ -45,20 +42,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
     tokenManager.remove();
   };
 
-  // Verify session on mount
   useEffect(() => {
     const verifySession = async () => {
-      // If there's a token, verify it with /auth/me
       if (tokenManager.isAuthenticated()) {
         try {
           const userData = await authService.verifySession();
           setUser(userData);
         } catch {
-          // Token is invalid or expired, clear everything
           clearUser();
         }
       } else {
-        // No token, clear user if exists
         const storedUser = localStorage.getItem(USER_STORAGE_KEY);
         if (storedUser) {
           setUserState(null);
@@ -69,7 +62,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     };
 
     verifySession();
-  }, []);  // Only run on mount
+  }, []);
 
   const isAuthenticated = !!user && tokenManager.isAuthenticated();
 
@@ -80,5 +73,4 @@ export function UserProvider({ children }: { children: ReactNode }) {
   );
 }
 
-// Export context for use in hook
 export { UserContext };

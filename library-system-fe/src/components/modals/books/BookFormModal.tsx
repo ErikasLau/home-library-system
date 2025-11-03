@@ -79,7 +79,6 @@ export default function BookFormModal({ onClose, onSuccess, book, library, mode 
     },
   });
 
-  // Close modal on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();

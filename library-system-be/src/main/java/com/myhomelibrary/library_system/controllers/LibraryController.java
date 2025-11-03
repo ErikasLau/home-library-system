@@ -6,7 +6,7 @@ import com.myhomelibrary.library_system.domains.library.LibraryRequest;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import com.myhomelibrary.library_system.security.SecurityUtils;
-import com.myhomelibrary.library_system.services.GenericAccessService;
+import com.myhomelibrary.library_system.services.AccessControl;
 import com.myhomelibrary.library_system.services.LibraryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -32,10 +32,9 @@ public class LibraryController {
 
     private final LibraryService libraryService;
     private final LibraryRepository libraryRepository;
-    private final GenericAccessService genericAccessService;
 
     @GetMapping
-    @Operation(summary = "Get user libraries", description = "Returns all libraries for the authenticated user.")
+    @Operation(summary = "Get user's libraries", description = "Returns all libraries owned by the authenticated user.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Libraries retrieved successfully"),
     })
@@ -44,14 +43,14 @@ public class LibraryController {
         return Response.success(libraryService.getLibrariesByUserId(userPk));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
-    @Operation(summary = "Get all libraries (admin)", description = "Returns all libraries. Admin only.")
+    @Operation(summary = "Get all libraries", description = "Returns libraries based on user role: Admin/Moderator get all libraries, Members get public libraries (excluding own).")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Libraries retrieved successfully"),
     })
     public Response<List<Library>> getAllLibraries() {
-        return Response.success(libraryService.getAllLibraries());
+        Long userPk = SecurityUtils.getAuthenticatedUserPk();
+        return Response.success(libraryService.getAllLibrariesBasedOnRole(userPk));
     }
 
     @GetMapping("/{id}")
@@ -61,7 +60,7 @@ public class LibraryController {
     })
     public Response<Library> getLibraryById(@PathVariable String id) {
         UUID uuid = parseUuid(id);
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, uuid);
+        AccessControl.requireLibraryAccess(libraryRepository::findLibraryById, uuid);
         return Response.success(libraryService.getLibraryById(uuid));
     }
 
@@ -83,7 +82,7 @@ public class LibraryController {
     })
     public Response<String> deleteLibrary(@PathVariable String id) {
         UUID uuid = parseUuid(id);
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, uuid);
+        AccessControl.requireOwnerOrAdmin(libraryRepository::findLibraryById, uuid);
         var deleted = libraryService.deleteLibraryById(uuid);
         return Response.success(deleted.toString());
     }
@@ -96,7 +95,7 @@ public class LibraryController {
     })
     public Response<Library> updateLibrary(@PathVariable String id, @Valid @RequestBody LibraryRequest libraryRequest) {
         UUID uuid = parseUuid(id);
-        genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, uuid);
+        AccessControl.requireOwnerOrAdmin(libraryRepository::findLibraryById, uuid);
         return Response.success(libraryService.updateLibrary(uuid, libraryRequest));
     }
 

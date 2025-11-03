@@ -12,7 +12,6 @@ interface BookDetailsModalProps {
   onClose: () => void;
 }
 
-// Local comment interface for this modal
 interface BookComment {
   id: string;
   text: string;
@@ -21,7 +20,6 @@ interface BookComment {
   bookId: string;
 }
 
-// Mock comments
 const mockComments: BookComment[] = [
   {
     id: '1',
