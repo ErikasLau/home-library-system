@@ -17,7 +17,6 @@ export default function LibraryBooksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNotFound, setIsNotFound] = useState(false);
-  const [totalBooks, setTotalBooks] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -31,13 +30,12 @@ export default function LibraryBooksPage() {
         setLoading(true);
         setError(null);
         setIsNotFound(false);
-        const [libraryData, booksPage] = await Promise.all([
+        const [libraryData, booksData] = await Promise.all([
           libraryService.getLibraryById(libraryId),
           bookService.getBooksByLibrary(libraryId)
         ]);
         setLibrary(libraryData);
-        setBooks(booksPage.content);
-        setTotalBooks(booksPage.totalElements);
+        setBooks(booksData);
       } catch (err) {
         const apiError = err as { status?: number; message?: string };
         if (apiError?.status === 404) {
@@ -56,9 +54,8 @@ export default function LibraryBooksPage() {
 
   const refetchBooks = async () => {
     if (!libraryId) return;
-    const booksPage = await bookService.getBooksByLibrary(libraryId);
-    setBooks(booksPage.content);
-    setTotalBooks(booksPage.totalElements);
+    const booksData = await bookService.getBooksByLibrary(libraryId);
+    setBooks(booksData);
   };
 
   const handleCloseModal = () => {
@@ -126,7 +123,7 @@ export default function LibraryBooksPage() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-2xl font-semibold text-gray-900">Books Collection</h2>
           <span className="text-sm text-gray-600">
-            {totalBooks} {totalBooks === 1 ? 'book' : 'books'} found
+            {books.length} {books.length === 1 ? 'book' : 'books'} found
           </span>
         </div>
         {books.length > 0 ? (

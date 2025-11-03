@@ -14,13 +14,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.myhomelibrary.library_system.controllers.LibraryController.LIBRARY_BASE_URL;
@@ -37,23 +35,23 @@ public class LibraryController {
     private final GenericAccessService genericAccessService;
 
     @GetMapping
-    @Operation(summary = "Get user libraries", description = "Returns a paginated list of libraries for the authenticated user.")
+    @Operation(summary = "Get user libraries", description = "Returns all libraries for the authenticated user.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Libraries retrieved successfully"),
     })
-    public Response<Page<Library>> getLibraries(@PageableDefault(size = 20) Pageable pageable) {
+    public Response<List<Library>> getLibraries() {
         Long userPk = SecurityUtils.getAuthenticatedUserPk();
-        return Response.success(libraryService.getLibrariesByUserId(pageable, userPk));
+        return Response.success(libraryService.getLibrariesByUserId(userPk));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/all")
-    @Operation(summary = "Get all libraries (admin)", description = "Returns a paginated list of all libraries. Admin only.")
+    @Operation(summary = "Get all libraries (admin)", description = "Returns all libraries. Admin only.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Libraries retrieved successfully"),
     })
-    public Response<Page<Library>> getAllLibraries(@PageableDefault(size = 20) Pageable pageable) {
-        return Response.success(libraryService.getAllLibraries(pageable));
+    public Response<List<Library>> getAllLibraries() {
+        return Response.success(libraryService.getAllLibraries());
     }
 
     @GetMapping("/{id}")

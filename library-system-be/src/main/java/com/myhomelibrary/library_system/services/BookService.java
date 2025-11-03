@@ -7,11 +7,10 @@ import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.BookRepository;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -24,15 +23,27 @@ public class BookService {
     private final CommentConverter commentConverter;
 
     @Transactional(readOnly = true)
-    public Page<BookShort> getAllBooksByLibraryId(UUID libraryId, Pageable pageable) {
-        return bookRepository.findAllBooksByLibrary_Id(libraryId, pageable)
-                .map(bookConverter::toBookShort);
+    public List<BookShort> getAllBooksByLibraryId(UUID libraryId) {
+        return bookRepository.findAllBooksByLibrary_Id(libraryId)
+                .stream()
+                .map(bookConverter::toBookShort)
+                .sorted((b1, b2) -> {
+                    int result = b2.updatedAt().compareTo(b1.updatedAt());
+                    return result != 0 ? result : b2.createdAt().compareTo(b1.createdAt());
+                })
+                .toList();
     }
 
     @Transactional(readOnly = true)
     public BookWithComments getBookByIdInLibrary(UUID libraryId, UUID id) {
         var bookEntity = bookRepository.findBookByIdAndLibrary_Id(id, libraryId).orElseThrow(NotFoundException::new);
-        var comments = bookEntity.getComments().stream().map(commentConverter::toComment).toList();
+        var comments = bookEntity.getComments().stream()
+                .map(commentConverter::toComment)
+                .sorted((c1, c2) -> {
+                    int result = c2.updatedAt().compareTo(c1.updatedAt());
+                    return result != 0 ? result : c2.createdAt().compareTo(c1.createdAt());
+                })
+                .toList();
         var book = bookConverter.toBook(bookEntity);
         return new BookWithComments(book, comments);
     }
@@ -42,7 +53,13 @@ public class BookService {
         var bookEntity = bookRepository.findBookByIdAndLibrary_Id(id, libraryId).orElseThrow(NotFoundException::new);
         bookConverter.updateBookEntity(bookUpdateRequest, bookEntity);
         var savedBookEntity = bookRepository.save(bookEntity);
-        var comments = savedBookEntity.getComments().stream().map(commentConverter::toComment).toList();
+        var comments = savedBookEntity.getComments().stream()
+                .map(commentConverter::toComment)
+                .sorted((c1, c2) -> {
+                    int result = c2.updatedAt().compareTo(c1.updatedAt());
+                    return result != 0 ? result : c2.createdAt().compareTo(c1.createdAt());
+                })
+                .toList();
         var book = bookConverter.toBook(savedBookEntity);
         return new BookWithComments(book, comments);
     }
@@ -59,6 +76,7 @@ public class BookService {
         var library = libraryRepository.findLibraryById(libraryId).orElseThrow(NotFoundException::new);
         var bookEntity = bookConverter.toBookEntity(bookRequest, library.getPk(), userId);
         var savedBookEntity = bookRepository.save(bookEntity);
-        return bookConverter.toBook(savedBookEntity);
+        var entityWithUser = bookRepository.findBookById(savedBookEntity.getId()).orElseThrow();
+        return bookConverter.toBook(entityWithUser);
     }
 }

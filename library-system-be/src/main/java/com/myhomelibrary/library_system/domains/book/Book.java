@@ -1,6 +1,7 @@
 package com.myhomelibrary.library_system.domains.book;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.myhomelibrary.library_system.domains.user.UserShort;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -31,4 +32,5 @@ public class Book {
     private Instant createdAt;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
     private Instant updatedAt;
+    private UserShort creator;
 }

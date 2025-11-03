@@ -3,28 +3,28 @@
 import { apiClient } from './api-client';
 import type {
   Response,
-  Page,
   Library,
   LibraryRequest,
-  PageableParams,
 } from '../types/api';
 
 export const libraryService = {
   /**
-   * Get user's libraries (paginated)
+   * Get user's libraries
    * GET /v1/library
+   * Returns libraries sorted by updatedAt DESC, createdAt DESC
    */
-  getUserLibraries: async (params?: PageableParams): Promise<Page<Library>> => {
-    const response = await apiClient.get<Response<Page<Library>>>('/v1/library', params);
+  getUserLibraries: async (): Promise<Library[]> => {
+    const response = await apiClient.get<Response<Library[]>>('/v1/library');
     return response.data;
   },
 
   /**
-   * Get all libraries (ADMIN only, paginated)
+   * Get all libraries (ADMIN only)
    * GET /v1/library/all
+   * Returns libraries sorted by updatedAt DESC, createdAt DESC
    */
-  getAllLibraries: async (params?: PageableParams): Promise<Page<Library>> => {
-    const response = await apiClient.get<Response<Page<Library>>>('/v1/library/all', params);
+  getAllLibraries: async (): Promise<Library[]> => {
+    const response = await apiClient.get<Response<Library[]>>('/v1/library/all');
     return response.data;
   },
 

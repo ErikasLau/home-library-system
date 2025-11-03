@@ -9,15 +9,17 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = UserConverter.class)
 public interface BookConverter {
     @Mapping(target = "id", expression = "java(java.util.UUID.randomUUID())")
     @Mapping(target = "userId", source = "userId")
     @Mapping(target = "libraryId", source = "libraryId")
     BookEntity toBookEntity(BookRequest bookRequest, Long libraryId, Long userId);
 
+    @Mapping(target = "creator", source = "user")
     Book toBook(BookEntity bookEntity);
 
+    @Mapping(target = "creator", source = "user")
     BookShort toBookShort(BookEntity bookEntity);
 
     @Mapping(target = "id", ignore = true)
@@ -28,5 +30,6 @@ public interface BookConverter {
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "library", ignore = true)
     @Mapping(target = "comments", ignore = true)
+    @Mapping(target = "user", ignore = true)
     void updateBookEntity(BookUpdateRequest bookUpdateRequest, @MappingTarget BookEntity bookEntity);
 }

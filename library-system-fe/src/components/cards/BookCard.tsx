@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, User } from 'lucide-react';
 import { toast } from 'sonner';
 import { ImageWithFallback } from '../figma/ImageWithFallback';
 import { Button } from '../ui/button';
@@ -98,9 +98,13 @@ export default function BookCard({ book, library, onClick, index = 0, onBookUpda
         
         <div className="p-4" onClick={onClick}>
           <p className="text-sm text-gray-600 line-clamp-1 mb-1">{book.author}</p>
-          <h4 className="text-base font-medium text-gray-900 group-hover:text-gray-700 transition-colors duration-200 line-clamp-2">
+          <h4 className="text-base font-medium text-gray-900 group-hover:text-gray-700 transition-colors duration-200 line-clamp-2 mb-2">
             {book.title}
           </h4>
+          <div className="flex items-center gap-1 text-xs text-gray-500">
+            <User className="w-3 h-3" />
+            <span>{book.creator.username}</span>
+          </div>
         </div>
       </div>
 

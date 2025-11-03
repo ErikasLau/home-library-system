@@ -14,12 +14,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static com.myhomelibrary.library_system.controllers.LibraryController.LIBRARY_BASE_URL;
@@ -35,14 +33,14 @@ public class LibraryBookController {
     private final GenericAccessService genericAccessService;
 
     @GetMapping
-    @Operation(summary = "Get books in library", description = "Returns a paginated list of books for the specified library.")
+    @Operation(summary = "Get books in library", description = "Returns all books for the specified library.")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Books retrieved successfully"),
     })
-    public Page<BookShort> getBooks(@PathVariable String libraryId, @PageableDefault(size = 20) Pageable pageable) {
+    public Response<List<BookShort>> getBooks(@PathVariable String libraryId) {
         UUID libUuid = parseUuid(libraryId);
         genericAccessService.assertOwnerOrAdmin(libraryRepository::findLibraryById, libUuid);
-        return bookService.getAllBooksByLibraryId(libUuid, pageable);
+        return Response.success(bookService.getAllBooksByLibraryId(libUuid));
     }
 
     @GetMapping("/{id}")

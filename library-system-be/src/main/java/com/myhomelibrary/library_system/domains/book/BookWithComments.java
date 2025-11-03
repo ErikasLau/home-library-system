@@ -19,7 +19,7 @@ public class BookWithComments extends Book {
         super(book.getId(), book.getTitle(), book.getAuthor(), book.getIsbn(),
                 book.getReleaseDate(), book.getDescription(), book.getLanguage(),
                 book.getPages(), book.getPublisher(), book.getGenre(),
-                book.getCoverImageUrl(), book.getCreatedAt(), book.getUpdatedAt());
+                book.getCoverImageUrl(), book.getCreatedAt(), book.getUpdatedAt(), book.getCreator());
         this.comments = comments;
     }
 }

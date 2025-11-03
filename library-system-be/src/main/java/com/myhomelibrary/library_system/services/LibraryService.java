@@ -6,11 +6,10 @@ import com.myhomelibrary.library_system.domains.library.LibraryRequest;
 import com.myhomelibrary.library_system.exceptions.NotFoundException;
 import com.myhomelibrary.library_system.repositories.LibraryRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -26,15 +25,27 @@ public class LibraryService {
     }
 
     @Transactional(readOnly = true)
-    public Page<Library> getAllLibraries(Pageable pageable) {
-        return libraryRepository.findAll(pageable)
-                .map(libraryConverter::toLibrary);
+    public List<Library> getAllLibraries() {
+        return libraryRepository.findAll()
+                .stream()
+                .map(libraryConverter::toLibrary)
+                .sorted((l1, l2) -> {
+                    int result = l2.updatedAt().compareTo(l1.updatedAt());
+                    return result != 0 ? result : l2.createdAt().compareTo(l1.createdAt());
+                })
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public Page<Library> getLibrariesByUserId(Pageable pageable, Long userPk) {
-        return libraryRepository.findAllByUserId(userPk, pageable)
-                .map(libraryConverter::toLibrary);
+    public List<Library> getLibrariesByUserId(Long userPk) {
+        return libraryRepository.findAllByUserId(userPk)
+                .stream()
+                .map(libraryConverter::toLibrary)
+                .sorted((l1, l2) -> {
+                    int result = l2.updatedAt().compareTo(l1.updatedAt());
+                    return result != 0 ? result : l2.createdAt().compareTo(l1.createdAt());
+                })
+                .toList();
     }
 
     @Transactional
@@ -48,7 +59,8 @@ public class LibraryService {
     public Library createLibrary(LibraryRequest libraryRequest, Long userId) {
         var libraryEntity = libraryConverter.toLibraryEntity(libraryRequest, userId);
         var savedLibraryEntity = libraryRepository.save(libraryEntity);
-        return libraryConverter.toLibrary(savedLibraryEntity);
+        var entityWithOwner = libraryRepository.findLibraryById(savedLibraryEntity.getId()).orElseThrow();
+        return libraryConverter.toLibrary(entityWithOwner);
     }
 
     @Transactional
@@ -56,6 +68,7 @@ public class LibraryService {
         var libraryEntity = libraryRepository.findLibraryById(id).orElseThrow(NotFoundException::new);
         libraryConverter.updateLibraryEntity(libraryRequest, libraryEntity);
         var savedLibraryEntity = libraryRepository.save(libraryEntity);
-        return libraryConverter.toLibrary(savedLibraryEntity);
+        var entityWithOwner = libraryRepository.findLibraryById(savedLibraryEntity.getId()).orElseThrow();
+        return libraryConverter.toLibrary(entityWithOwner);
     }
 }

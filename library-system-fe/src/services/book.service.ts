@@ -1,22 +1,21 @@
 import { apiClient } from './api-client';
 import type {
   Response,
-  Page,
   Book,
   BookShort,
   BookRequest,
   BookUpdateRequest,
-  PageableParams,
 } from '../types/api';
 
 export const bookService = {
   /**
-   * Get books in a library (paginated)
+   * Get books in a library
    * GET /v1/library/{libraryId}/books
-   * Note: Returns Page<BookShort> directly (not wrapped in Response)
+   * Returns books sorted by updatedAt DESC, createdAt DESC
    */
-  getBooksByLibrary: async (libraryId: string, params?: PageableParams): Promise<Page<BookShort>> => {
-    return apiClient.get<Page<BookShort>>(`/v1/library/${libraryId}/books`, params);
+  getBooksByLibrary: async (libraryId: string): Promise<BookShort[]> => {
+    const response = await apiClient.get<Response<BookShort[]>>(`/v1/library/${libraryId}/books`);
+    return response.data;
   },
 
   /**

@@ -2,6 +2,7 @@ package com.myhomelibrary.library_system.domains.library;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.myhomelibrary.library_system.domains.enums.LibraryPrivacyStatus;
+import com.myhomelibrary.library_system.domains.user.UserShort;
 import lombok.Builder;
 
 import java.time.Instant;
@@ -18,6 +19,7 @@ public record Library(
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
         Instant createdAt,
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSX", timezone = "UTC")
-        Instant updatedAt
+        Instant updatedAt,
+        UserShort creator
 ) {
 }

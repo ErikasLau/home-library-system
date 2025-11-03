@@ -27,7 +27,13 @@ public class CommentService {
     @Transactional(readOnly = true)
     public List<Comment> getAllCommentsByLibraryAndBookId(UUID libraryId, UUID bookId) {
         var bookEntity = bookRepository.findBookByIdAndLibrary_Id(bookId, libraryId).orElseThrow(NotFoundException::new);
-        return commentRepository.findAllByBookId(bookEntity.getPk()).stream().map(commentConverter::toComment).toList();
+        return commentRepository.findAllByBookId(bookEntity.getPk()).stream()
+                .map(commentConverter::toComment)
+                .sorted((c1, c2) -> {
+                    int result = c2.updatedAt().compareTo(c1.updatedAt());
+                    return result != 0 ? result : c2.createdAt().compareTo(c1.createdAt());
+                })
+                .toList();
     }
 
     @Transactional(readOnly = true)

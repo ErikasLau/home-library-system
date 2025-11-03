@@ -23,8 +23,6 @@ export default function HomePage() {
   const [libraries, setLibraries] = useState<Library[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [page, setPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
@@ -37,9 +35,8 @@ export default function HomePage() {
       try {
         setLoading(true);
         setError(null);
-        const response = await libraryService.getUserLibraries({ page, size: 10 });
-        setLibraries(response.content);
-        setTotalPages(response.totalPages);
+        const response = await libraryService.getUserLibraries();
+        setLibraries(response);
       } catch (err) {
         const apiError = err as { status?: number; message?: string };
         setError(apiError?.status === 401 ? 'Authentication failed. Please log in again.' : apiError?.message || 'Failed to load libraries');
@@ -49,7 +46,7 @@ export default function HomePage() {
     };
 
     fetchLibraries();
-  }, [page, user, refreshTrigger]);
+  }, [user, refreshTrigger]);
 
   const filteredLibraries = filter === 'ALL' ? libraries : libraries.filter(lib => lib.privacyStatus === filter);
 
@@ -58,7 +55,6 @@ export default function HomePage() {
   };
 
   const handleLibraryCreated = () => {
-    setPage(0);
     setRefreshTrigger(prev => prev + 1);
   };
 
@@ -115,7 +111,7 @@ export default function HomePage() {
           <p className="font-semibold text-lg mb-1">Error loading libraries</p>
           <p className="text-sm mb-3">{error}</p>
           <Button 
-            onClick={() => setPage(0)} 
+            onClick={() => setRefreshTrigger(prev => prev + 1)} 
             variant="outline" 
             size="sm" 
             className="border-red-300 hover:bg-red-100"
@@ -143,32 +139,6 @@ export default function HomePage() {
           <p className="text-gray-600 text-lg">
             {filter === 'ALL' ? 'No libraries found. Create your first library to get started!' : `No ${filter.toLowerCase()} libraries found.`}
           </p>
-        </div>
-      )}
-
-      {!loading && !error && totalPages > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-6 pb-2">
-          <Button 
-            onClick={() => setPage(p => Math.max(0, p - 1))} 
-            disabled={page === 0} 
-            variant="outline" 
-            size="sm"
-            className="shadow-sm"
-          >
-            Previous
-          </Button>
-          <span className="text-sm text-gray-600 font-medium px-3">
-            Page {page + 1} of {totalPages}
-          </span>
-          <Button 
-            onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} 
-            disabled={page >= totalPages - 1} 
-            variant="outline" 
-            size="sm"
-            className="shadow-sm"
-          >
-            Next
-          </Button>
         </div>
       )}
 

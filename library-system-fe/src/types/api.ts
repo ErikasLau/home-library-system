@@ -10,23 +10,10 @@ export interface Response<T> {
   };
 }
 
-// Spring Page Response
-export interface Page<T> {
-  content: T[];
-  totalElements: number;
-  totalPages: number;
-  size: number;
-  number: number;
-  first: boolean;
-  last: boolean;
-  empty: boolean;
-}
-
-// Pageable parameters
-export interface PageableParams extends Record<string, string | number | boolean | undefined> {
-  page?: number;
-  size?: number;
-  sort?: string;
+// User Short - for creator references
+export interface UserShort {
+  id: string;
+  username: string;
 }
 
 // Authentication
@@ -68,6 +55,7 @@ export interface Library {
   color?: string;
   privacyStatus: 'PUBLIC' | 'PRIVATE';
   isEditable: boolean;
+  creator: UserShort;
   createdAt: string;
   updatedAt: string;
 }
@@ -87,6 +75,7 @@ export interface BookShort {
   releaseDate: string;
   language: string;
   coverImageUrl: string | null;
+  creator: UserShort;
   createdAt: string;
   updatedAt: string;
 }
@@ -103,6 +92,7 @@ export interface Book {
   publisher: string;
   genre: string;
   coverImageUrl: string | null;
+  creator: UserShort;
   createdAt: string;
   updatedAt: string;
   comments: CommentWithUser[];
@@ -158,11 +148,13 @@ export interface Comment {
 }
 
 export interface CommentRequest {
-  content: string;
+  text: string;
+  rating: number;
 }
 
 export interface CommentUpdateRequest {
-  content: string;
+  text: string;
+  rating?: number;
 }
 
 // Error Response
