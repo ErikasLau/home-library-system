@@ -4,11 +4,14 @@ import type {
   LoginRequest,
   LoginResponse,
   RegistrationRequest,
+  RefreshTokenRequest,
+  RefreshTokenResponse,
   User,
 } from '../types/api';
 
 interface LoginResult {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: User;
 }
 
@@ -20,13 +23,30 @@ export const authService = {
 
   login: async (data: LoginRequest): Promise<LoginResult> => {
     const response = await apiClient.post<Response<LoginResponse>>('/auth/login', data);
-    const { token, user } = response.data;
+    const { accessToken, refreshToken, user } = response.data;
     
-    tokenManager.set(token);
+    tokenManager.setTokens(accessToken, refreshToken);
     
     return {
-      token,
+      accessToken,
+      refreshToken,
       user,
+    };
+  },
+
+  refreshToken: async (refreshToken: string): Promise<RefreshTokenResponse> => {
+    const response = await apiClient.post<Response<RefreshTokenResponse>>(
+      '/auth/refresh',
+      { refreshToken } as RefreshTokenRequest
+    );
+    const { accessToken, refreshToken: newRefreshToken, expiresIn } = response.data;
+    
+    tokenManager.setTokens(accessToken, newRefreshToken);
+    
+    return {
+      accessToken,
+      refreshToken: newRefreshToken,
+      expiresIn,
     };
   },
 
@@ -40,6 +60,10 @@ export const authService = {
 
   getToken: (): string | null => {
     return tokenManager.get();
+  },
+
+  getRefreshToken: (): string | null => {
+    return tokenManager.getRefreshToken();
   },
 
   verifySession: async (): Promise<User> => {

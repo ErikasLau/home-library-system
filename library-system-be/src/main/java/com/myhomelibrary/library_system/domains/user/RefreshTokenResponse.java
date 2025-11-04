@@ -1,9 +1,8 @@
 package com.myhomelibrary.library_system.domains.user;
 
-public record LoginResponse(
+public record RefreshTokenResponse(
         String accessToken,
         String refreshToken,
-        String expiresIn,
-        User user
+        String expiresIn
 ) {
 }

@@ -4,10 +4,12 @@ import type { ApiError } from '../types/api';
 
 export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
-const TOKEN_KEY = 'auth_token';
+const ACCESS_TOKEN_KEY = 'auth_access_token';
+const REFRESH_TOKEN_KEY = 'auth_refresh_token';
 
 class TokenStorage {
-  private inMemoryToken: string | null = null;
+  private inMemoryAccessToken: string | null = null;
+  private inMemoryRefreshToken: string | null = null;
   private hasLocalStorage: boolean;
 
   constructor() {
@@ -27,23 +29,44 @@ class TokenStorage {
 
   get(): string | null {
     if (this.hasLocalStorage) {
-      return localStorage.getItem(TOKEN_KEY);
+      return localStorage.getItem(ACCESS_TOKEN_KEY);
     }
-    return this.inMemoryToken;
+    return this.inMemoryAccessToken;
   }
 
   set(token: string): void {
     if (this.hasLocalStorage) {
-      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(ACCESS_TOKEN_KEY, token);
     }
-    this.inMemoryToken = token;
+    this.inMemoryAccessToken = token;
+  }
+
+  getRefreshToken(): string | null {
+    if (this.hasLocalStorage) {
+      return localStorage.getItem(REFRESH_TOKEN_KEY);
+    }
+    return this.inMemoryRefreshToken;
+  }
+
+  setRefreshToken(token: string): void {
+    if (this.hasLocalStorage) {
+      localStorage.setItem(REFRESH_TOKEN_KEY, token);
+    }
+    this.inMemoryRefreshToken = token;
+  }
+
+  setTokens(accessToken: string, refreshToken: string): void {
+    this.set(accessToken);
+    this.setRefreshToken(refreshToken);
   }
 
   remove(): void {
     if (this.hasLocalStorage) {
-      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(ACCESS_TOKEN_KEY);
+      localStorage.removeItem(REFRESH_TOKEN_KEY);
     }
-    this.inMemoryToken = null;
+    this.inMemoryAccessToken = null;
+    this.inMemoryRefreshToken = null;
   }
 
   isAuthenticated(): boolean {
@@ -79,7 +102,7 @@ const axiosInstance = axios.create({
   },
 });
 
-const PUBLIC_ENDPOINTS = ['/auth/login', '/auth/register'];
+const PUBLIC_ENDPOINTS = ['/auth/login', '/auth/register', '/auth/refresh'];
 
 const isPublicEndpoint = (url?: string): boolean => {
   if (!url) return false;
@@ -101,24 +124,42 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-let isVerifyingSession = false;
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: ApiError | null = null) => {
+  failedQueue.forEach(promise => {
+    if (error) {
+      promise.reject(error);
+    } else {
+      promise.resolve();
+    }
+  });
+  failedQueue = [];
+};
 
 axiosInstance.interceptors.response.use(
   (response) => {
     return response;
   },
   async (error: AxiosError<ErrorResponse>) => {
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
     const apiError: ApiError = {
       message: 'An error occurred',
       status: error.response?.status || 500,
     };
 
     if (error.response?.status === 401) {
-      const isAuthEndpoint = isPublicEndpoint(error.config?.url);
-      const isAuthMeEndpoint = error.config?.url?.includes('/auth/me');
+      const isAuthEndpoint = isPublicEndpoint(originalRequest?.url);
+      const isRefreshEndpoint = originalRequest?.url?.includes('/auth/refresh');
       
-      if (!isAuthEndpoint) {
-        if (isAuthMeEndpoint) {
+      if (!isAuthEndpoint && !originalRequest._retry) {
+        if (isRefreshEndpoint) {
+          isRefreshing = false;
+          processQueue(apiError);
           tokenManager.remove();
           if (!window.location.pathname.includes('/login')) {
             window.location.href = '/login';
@@ -126,26 +167,59 @@ axiosInstance.interceptors.response.use(
           apiError.message = 'Session expired. Please login again.';
           return Promise.reject(apiError);
         }
-        
-        if (!isVerifyingSession) {
-          try {
-            isVerifyingSession = true;
-            await axiosInstance.get('/auth/me');
-            isVerifyingSession = false;
-            
-            if (error.config) {
-              return axiosInstance.request(error.config);
-            }
-          } catch {
-            isVerifyingSession = false;
-            tokenManager.remove();
-            if (!window.location.pathname.includes('/login')) {
-              window.location.href = '/login';
-            }
-            apiError.message = 'Session expired. Please login again.';
-            return Promise.reject(apiError);
+
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then(() => {
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${tokenManager.get()}`;
+              }
+              return axiosInstance(originalRequest);
+            })
+            .catch(err => {
+              return Promise.reject(err);
+            });
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        const refreshToken = tokenManager.getRefreshToken();
+        if (!refreshToken) {
+          isRefreshing = false;
+          tokenManager.remove();
+          if (!window.location.pathname.includes('/login')) {
+            window.location.href = '/login';
           }
-        } else {
+          apiError.message = 'Session expired. Please login again.';
+          return Promise.reject(apiError);
+        }
+
+        try {
+          const response = await axiosInstance.post<{
+            success: boolean;
+            data: {
+              accessToken: string;
+              refreshToken: string;
+              expiresIn: string;
+            };
+          }>('/auth/refresh', { refreshToken });
+
+          const { accessToken, refreshToken: newRefreshToken } = response.data.data;
+          tokenManager.setTokens(accessToken, newRefreshToken);
+          
+          isRefreshing = false;
+          processQueue(null);
+
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+          }
+          return axiosInstance(originalRequest);
+        } catch {
+          isRefreshing = false;
+          processQueue(apiError);
           tokenManager.remove();
           if (!window.location.pathname.includes('/login')) {
             window.location.href = '/login';

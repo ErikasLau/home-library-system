@@ -53,10 +53,8 @@ public class LibraryService {
     @Transactional(readOnly = true)
     public List<Library> getAllLibrariesBasedOnRole(Long userPk) {
         if (SecurityUtils.isCurrentUserAdmin() || SecurityUtils.isCurrentUserModerator()) {
-            // Admin and Moderator get all libraries (public + private)
             return getAllLibraries();
         } else {
-            // Members get only public libraries excluding their own
             return libraryRepository.findAllByPrivacyStatus(LibraryPrivacyStatus.PUBLIC)
                     .stream()
                     .filter(entity -> !entity.getOwnerId().equals(userPk))

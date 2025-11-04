@@ -1,10 +1,7 @@
 package com.myhomelibrary.library_system.controllers;
 
 import com.myhomelibrary.library_system.domains.api.Response;
-import com.myhomelibrary.library_system.domains.user.LoginRequest;
-import com.myhomelibrary.library_system.domains.user.LoginResponse;
-import com.myhomelibrary.library_system.domains.user.RegistrationRequest;
-import com.myhomelibrary.library_system.domains.user.User;
+import com.myhomelibrary.library_system.domains.user.*;
 import com.myhomelibrary.library_system.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -56,5 +53,16 @@ public class AuthenticationController {
     })
     public Response<User> getCurrentUser() {
         return Response.success(userService.getCurrentUser());
+    }
+
+    @PostMapping("/refresh")
+    @Operation(summary = "Refresh access token", description = "Refreshes the access token using a valid refresh token.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Token refreshed successfully"),
+            @ApiResponse(responseCode = "401", description = "Invalid or expired refresh token")
+    })
+    public Response<RefreshTokenResponse> refreshToken(@RequestBody RefreshTokenRequest request) {
+        RefreshTokenResponse refreshResponse = userService.refreshAccessToken(request.refreshToken());
+        return Response.success(refreshResponse);
     }
 }

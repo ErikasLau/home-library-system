@@ -13,5 +13,6 @@ public class FirebaseProperties {
     private String webApiKey;
     private String identityToolkitSignInWithPasswordUrl;
     private String identityToolkitSignInWithCustomTokenUrl;
+    private String identityToolkitRefreshTokenUrl;
     private long customTokenLifetimeSeconds = 3600;
 }

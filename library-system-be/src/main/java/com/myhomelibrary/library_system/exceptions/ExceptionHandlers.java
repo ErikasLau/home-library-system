@@ -4,7 +4,6 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.myhomelibrary.library_system.domains.api.Response;
 import com.myhomelibrary.library_system.domains.api.ServerError;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.HashMap;
 import java.util.Map;
 
-@Slf4j
 @RestControllerAdvice
 public class ExceptionHandlers {
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -39,7 +37,6 @@ public class ExceptionHandlers {
     @ExceptionHandler(DataIntegrityViolationException.class)
     @ResponseBody
     public Response<ServerError> handleDataIntegrityViolationException(HttpServletResponse response, DataIntegrityViolationException ex) {
-        log.error(ex.getMessage(), ex);
         response.setStatus(HttpServletResponse.SC_CONFLICT);
         var serverError = new ServerError("Data Integrity Violation", null);
         return Response.error(serverError);
@@ -69,25 +66,52 @@ public class ExceptionHandlers {
     @ResponseBody
     public Response<ServerError> handleFirebaseServiceException(HttpServletResponse response, FirebaseServiceException ex) {
         FirebaseAuthException firebaseEx = ex.getFirebaseAuthException();
-        log.error("Firebase Service Error: {}", ex.getMessage(), ex);
 
-        if (firebaseEx != null && firebaseEx.getAuthErrorCode() != null &&
-                firebaseEx.getAuthErrorCode().name().equals("EMAIL_EXISTS")) {
-            response.setStatus(HttpServletResponse.SC_CONFLICT);
-            var serverError = new ServerError("Email already exists in Firebase", "A user with this email already exists");
-            return Response.error(serverError);
+        if (firebaseEx != null && firebaseEx.getAuthErrorCode() != null) {
+            String errorCode = firebaseEx.getAuthErrorCode().name();
+
+            switch (errorCode) {
+                case "EMAIL_EXISTS":
+                case "EMAIL_ALREADY_EXISTS":
+                    response.setStatus(HttpServletResponse.SC_CONFLICT);
+                    var emailExistsError = new ServerError("Email Already Exists", "An account with this email address already exists. Please use a different email or try logging in.");
+                    return Response.error(emailExistsError);
+
+                case "WEAK_PASSWORD":
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    var weakPasswordError = new ServerError("Weak Password", "Password is too weak. Please choose a stronger password with at least 6 characters.");
+                    return Response.error(weakPasswordError);
+
+                case "INVALID_EMAIL":
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    var invalidEmailError = new ServerError("Invalid Email", "The email address format is invalid. Please enter a valid email address.");
+                    return Response.error(invalidEmailError);
+
+                case "TOO_MANY_REQUESTS":
+                    response.setStatus(429);
+                    var tooManyRequestsError = new ServerError("Too Many Requests", "Too many requests. Please wait a moment before trying again.");
+                    return Response.error(tooManyRequestsError);
+
+                case "OPERATION_NOT_ALLOWED":
+                    response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                    var operationNotAllowedError = new ServerError("Operation Not Allowed", "This operation is not currently allowed. Please contact support.");
+                    return Response.error(operationNotAllowedError);
+
+                default:
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    var defaultFirebaseError = new ServerError("Firebase Authentication Error", ex.getMessage());
+                    return Response.error(defaultFirebaseError);
+            }
         }
 
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        var serverError = new ServerError("Firebase Authentication Error", ex.getMessage());
+        var serverError = new ServerError("Firebase Service Error", ex.getMessage());
         return Response.error(serverError);
     }
 
     @ExceptionHandler(FirebaseAuthException.class)
     @ResponseBody
     public Response<ServerError> handleFirebaseAuthException(HttpServletResponse response, FirebaseAuthException ex) {
-        log.error("Firebase Auth Error: {}", ex.getMessage(), ex);
-
         if (ex.getAuthErrorCode() != null && ex.getAuthErrorCode().name().equals("EMAIL_EXISTS")) {
             response.setStatus(HttpServletResponse.SC_CONFLICT);
             var serverError = new ServerError("Email already exists", ex.getMessage());
@@ -102,10 +126,48 @@ public class ExceptionHandlers {
     @ExceptionHandler(AuthenticationException.class)
     @ResponseBody
     public Response<ServerError> handleAuthenticationException(HttpServletResponse response, AuthenticationException ex) {
-        log.error("Authentication Error: {}", ex.getMessage(), ex);
-
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         var serverError = new ServerError("Authentication Failed", ex.getMessage());
+        return Response.error(serverError);
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    @ResponseBody
+    public Response<ServerError> handleInvalidCredentialsException(HttpServletResponse response, InvalidCredentialsException ex) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        var serverError = new ServerError("Invalid Credentials", ex.getMessage());
+        return Response.error(serverError);
+    }
+
+    @ExceptionHandler(UserAccountDisabledException.class)
+    @ResponseBody
+    public Response<ServerError> handleUserAccountDisabledException(HttpServletResponse response, UserAccountDisabledException ex) {
+        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+        var serverError = new ServerError("Account Disabled", ex.getMessage());
+        return Response.error(serverError);
+    }
+
+    @ExceptionHandler(TooManyAttemptsException.class)
+    @ResponseBody
+    public Response<ServerError> handleTooManyAttemptsException(HttpServletResponse response, TooManyAttemptsException ex) {
+        response.setStatus(429);
+        var serverError = new ServerError("Too Many Attempts", ex.getMessage());
+        return Response.error(serverError);
+    }
+
+    @ExceptionHandler(TokenValidationException.class)
+    @ResponseBody
+    public Response<ServerError> handleTokenValidationException(HttpServletResponse response, TokenValidationException ex) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        var serverError = new ServerError("Token Validation Failed", ex.getMessage());
+        return Response.error(serverError);
+    }
+
+    @ExceptionHandler(UserRegistrationException.class)
+    @ResponseBody
+    public Response<ServerError> handleUserRegistrationException(HttpServletResponse response, UserRegistrationException ex) {
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        var serverError = new ServerError("Registration Failed", ex.getMessage());
         return Response.error(serverError);
     }
 
@@ -118,7 +180,6 @@ public class ExceptionHandlers {
     @ExceptionHandler(Exception.class)
     @ResponseBody
     public Response<ServerError> handleGeneralException(HttpServletResponse response, Exception ex) {
-        log.error(ex.getMessage(), ex);
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         var serverError = new ServerError("Internal Server Error", null);
         return Response.error(serverError);
