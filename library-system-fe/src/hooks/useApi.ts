@@ -7,7 +7,6 @@ interface UseApiState<T> {
   error: string | null;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useApi<T, Args extends any[] = []>(
   apiFunction: (...args: Args) => Promise<T>
 ) {
@@ -46,7 +45,6 @@ export function useApi<T, Args extends any[] = []>(
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useMutation<T, Args extends any[] = []>(
   mutationFunction: (...args: Args) => Promise<T>
 ) {

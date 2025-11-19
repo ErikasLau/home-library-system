@@ -25,7 +25,6 @@ interface BookFormFieldsProps {
 export default function BookFormFields({ register, errors }: BookFormFieldsProps) {
   return (
     <>
-      {/* Title - Required */}
       <div className="space-y-2">
         <Label htmlFor="title" className="flex items-center gap-2 text-black font-medium">
           <BookOpen className="w-4 h-4 text-gray-600" />
@@ -42,9 +41,7 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
         )}
       </div>
 
-      {/* Two Column Layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Author */}
         <div className="space-y-2">
           <Label htmlFor="author" className="flex items-center gap-2 text-black font-medium">
             <User className="w-4 h-4 text-gray-600" />
@@ -61,7 +58,6 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
           )}
         </div>
 
-        {/* ISBN */}
         <div className="space-y-2">
           <Label htmlFor="isbn" className="flex items-center gap-2 text-black font-medium">
             <Hash className="w-4 h-4 text-gray-600" />
@@ -78,7 +74,6 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
           )}
         </div>
 
-        {/* Release Date */}
         <div className="space-y-2">
           <Label htmlFor="releaseDate" className="flex items-center gap-2 text-black font-medium">
             <Calendar className="w-4 h-4 text-gray-600" />
@@ -95,7 +90,6 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
           )}
         </div>
 
-        {/* Language */}
         <div className="space-y-2">
           <Label htmlFor="language" className="flex items-center gap-2 text-black font-medium">
             <Languages className="w-4 h-4 text-gray-600" />
@@ -112,7 +106,6 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
           )}
         </div>
 
-        {/* Pages */}
         <div className="space-y-2">
           <Label htmlFor="pages" className="flex items-center gap-2 text-black font-medium">
             <FileDigit className="w-4 h-4 text-gray-600" />
@@ -131,7 +124,6 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
           )}
         </div>
 
-        {/* Publisher */}
         <div className="space-y-2">
           <Label htmlFor="publisher" className="flex items-center gap-2 text-black font-medium">
             <Building className="w-4 h-4 text-gray-600" />
@@ -148,7 +140,6 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
           )}
         </div>
 
-        {/* Genre */}
         <div className="space-y-2">
           <Label htmlFor="genre" className="flex items-center gap-2 text-black font-medium">
             <Tag className="w-4 h-4 text-gray-600" />
@@ -165,7 +156,6 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
           )}
         </div>
 
-        {/* Cover Image URL */}
         <div className="space-y-2">
           <Label htmlFor="coverImageUrl" className="flex items-center gap-2 text-black font-medium">
             <Image className="w-4 h-4 text-gray-600" />
@@ -184,7 +174,6 @@ export default function BookFormFields({ register, errors }: BookFormFieldsProps
         </div>
       </div>
 
-      {/* Description - Full Width */}
       <div className="space-y-2">
         <Label htmlFor="description" className="flex items-center gap-2 text-black font-medium">
           <FileText className="w-4 h-4 text-gray-600" />

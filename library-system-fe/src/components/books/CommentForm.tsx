@@ -52,7 +52,6 @@ export default function CommentForm({ onSubmit, isAuthenticated }: CommentFormPr
 
   return (
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-      {/* Star Rating */}
       <div className="space-y-2">
         <Label className="text-black font-semibold text-sm">
           Rating
@@ -80,7 +79,6 @@ export default function CommentForm({ onSubmit, isAuthenticated }: CommentFormPr
         )}
       </div>
 
-      {/* Comment Text */}
       <div className="space-y-2">
         <Label htmlFor="text" className="text-black font-semibold text-sm">
           Comment

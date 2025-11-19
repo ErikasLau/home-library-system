@@ -27,10 +27,6 @@ public class BookService {
         return bookRepository.findAllBooksByLibrary_Id(libraryId)
                 .stream()
                 .map(bookConverter::toBookShort)
-                .sorted((b1, b2) -> {
-                    int result = b2.updatedAt().compareTo(b1.updatedAt());
-                    return result != 0 ? result : b2.createdAt().compareTo(b1.createdAt());
-                })
                 .toList();
     }
 
@@ -39,10 +35,6 @@ public class BookService {
         var bookEntity = bookRepository.findBookByIdAndLibrary_Id(id, libraryId).orElseThrow(NotFoundException::new);
         var comments = bookEntity.getComments().stream()
                 .map(commentConverter::toComment)
-                .sorted((c1, c2) -> {
-                    int result = c2.updatedAt().compareTo(c1.updatedAt());
-                    return result != 0 ? result : c2.createdAt().compareTo(c1.createdAt());
-                })
                 .toList();
         var book = bookConverter.toBook(bookEntity);
         return new BookWithComments(book, comments);
@@ -55,10 +47,6 @@ public class BookService {
         var savedBookEntity = bookRepository.save(bookEntity);
         var comments = savedBookEntity.getComments().stream()
                 .map(commentConverter::toComment)
-                .sorted((c1, c2) -> {
-                    int result = c2.updatedAt().compareTo(c1.updatedAt());
-                    return result != 0 ? result : c2.createdAt().compareTo(c1.createdAt());
-                })
                 .toList();
         var book = bookConverter.toBook(savedBookEntity);
         return new BookWithComments(book, comments);

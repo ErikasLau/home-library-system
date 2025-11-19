@@ -1,8 +1,5 @@
 import type { ApiError } from '../types/api';
 
-/**
- * Format API error for display
- */
 export function formatApiError(error: unknown): string {
   if (!error) return 'An unknown error occurred';
 
@@ -37,33 +34,21 @@ export function formatApiError(error: unknown): string {
   }
 }
 
-/**
- * Check if error is authentication related
- */
 export function isAuthError(error: unknown): boolean {
   const apiError = error as ApiError;
   return apiError?.status === 401;
 }
 
-/**
- * Check if error is permission related
- */
 export function isPermissionError(error: unknown): boolean {
   const apiError = error as ApiError;
   return apiError?.status === 403;
 }
 
-/**
- * Check if error is validation related
- */
 export function isValidationError(error: unknown): boolean {
   const apiError = error as ApiError;
   return apiError?.status === 400 && !!apiError.errors;
 }
 
-/**
- * Get validation errors as array
- */
 export function getValidationErrors(error: unknown): Array<{ field: string; message: string }> | null {
   const apiError = error as ApiError;
   if (apiError?.errors && Array.isArray(apiError.errors)) {

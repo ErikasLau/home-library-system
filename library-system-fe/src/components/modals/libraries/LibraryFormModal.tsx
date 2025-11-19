@@ -132,14 +132,14 @@ export default function LibraryFormModal({ onClose, onSuccess, library, mode }: 
               type="button"
               onClick={onClose}
               variant="outline"
-              className="flex-1 border-2 border-gray-300 hover:bg-gray-100 transition-all duration-300 font-medium h-11 cursor-pointer"
+              className="flex-1 border-2 border-gray-300 hover:bg-gray-100 transition-all duration-300 font-medium h-11 cursor-pointer active:scale-95"
               disabled={isSubmitting}
             >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="flex-1 bg-black text-white hover:bg-gray-800 transition-all duration-300 hover:shadow-lg font-semibold h-11 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+              className="flex-1 bg-black text-white hover:bg-gray-800 transition-all duration-300 hover:shadow-lg font-semibold h-11 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer active:scale-95"
               disabled={isSubmitting}
             >
               {isSubmitting ? (

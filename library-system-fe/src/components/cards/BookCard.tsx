@@ -18,7 +18,7 @@ interface BookCardProps {
   onBookDeleted?: () => void;
 }
 
-export default function BookCard({ book, library, onClick, index = 0, onBookUpdated, onBookDeleted }: BookCardProps) {
+export default function BookCard({ book, library, onClick, onBookUpdated, onBookDeleted }: BookCardProps) {
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -64,8 +64,7 @@ export default function BookCard({ book, library, onClick, index = 0, onBookUpda
   return (
     <>
       <div
-        className="group cursor-pointer bg-white rounded-lg border border-gray-200 overflow-hidden hover:bg-gray-50 transition-colors duration-200 flex flex-col max-w-xs mx-auto w-full"
-        style={{ animationDelay: `${index * 50}ms`, animationDuration: '500ms' }}
+        className="group cursor-pointer bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-all duration-200 flex flex-col max-w-xs mx-auto w-full"
       >
         <div className="aspect-2/3 overflow-hidden bg-gray-100 relative border-b border-gray-200" onClick={onClick}>
           <div className="absolute inset-0 bg-linear-to-b from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none h-24" />
@@ -73,7 +72,7 @@ export default function BookCard({ book, library, onClick, index = 0, onBookUpda
           <ImageWithFallback
             src={book.coverImageUrl || undefined}
             alt={book.title}
-            className="w-full h-full object-cover object-center"
+            className="w-full h-full object-cover object-center group-hover:opacity-95 transition-opacity duration-200"
           />
           
           {(canEdit || canDelete) && (
@@ -81,7 +80,7 @@ export default function BookCard({ book, library, onClick, index = 0, onBookUpda
               {canEdit && (
                 <Button
                   onClick={handleUpdateClick}
-                  className="p-0 w-8 h-8 bg-white/90 text-gray-800 hover:bg-white shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
+                  className="p-0 w-8 h-8 bg-white/90 text-gray-800 hover:bg-white shadow-sm hover:shadow-md transition-all backdrop-blur-sm active:scale-90"
                   title="Update book"
                 >
                   <Pencil className="w-3.5 h-3.5" />
@@ -90,7 +89,7 @@ export default function BookCard({ book, library, onClick, index = 0, onBookUpda
               {canDelete && (
                 <Button
                   onClick={handleDeleteClick}
-                  className="p-0 w-8 h-8 bg-red-500/90 text-white hover:bg-red-600 shadow-sm hover:shadow-md transition-all backdrop-blur-sm"
+                  className="p-0 w-8 h-8 bg-red-500/90 text-white hover:bg-red-600 shadow-sm hover:shadow-md transition-all backdrop-blur-sm active:scale-90"
                   title="Delete book"
                 >
                   <Trash2 className="w-3.5 h-3.5" />

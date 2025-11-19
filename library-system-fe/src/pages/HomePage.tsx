@@ -13,7 +13,7 @@ type PrivacyFilterType = 'ALL' | 'PUBLIC' | 'PRIVATE';
 
 const FILTERS: { type: FilterType; label: string; Icon?: typeof Globe | typeof Lock }[] = [
   { type: 'MY', label: 'My Libraries' },
-  { type: 'ALL', label: 'Other Libraries' },
+  { type: 'ALL', label: 'All Libraries' },
 ];
 
 const PRIVACY_FILTERS: { type: PrivacyFilterType; label: string; Icon?: typeof Globe | typeof Lock }[] = [
@@ -32,6 +32,10 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  useEffect(() => {
+    document.title = 'My Libraries - Home Library System';
+  }, []);
 
   useEffect(() => {
     const fetchLibraries = async () => {
@@ -89,14 +93,14 @@ export default function HomePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
+    <div className="max-w-7xl mx-auto space-y-8 animate-fade-in-up">
       <PageTitle
         title="My Libraries"
         description="Manage your book collections and discover new reads"
         action={
           <Button 
             onClick={() => setShowAddLibraryModal(true)}
-            className="bg-black text-white hover:bg-gray-800 shadow-sm hover:shadow-md transition-all"
+            className="bg-black text-white hover:bg-gray-800 shadow-sm hover:shadow-md transition-all active:scale-95"
           >
             <Plus className="w-4 h-4 mr-2" />
             Create Library
@@ -113,7 +117,7 @@ export default function HomePage() {
                 setFilter(type);
                 setPrivacyFilter('ALL');
               }}
-              className={`px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-2 font-medium text-sm cursor-pointer ${
+              className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 font-medium text-sm cursor-pointer active:scale-95 ${
                 filter === type 
                   ? 'bg-gray-900 text-white' 
                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
@@ -129,7 +133,7 @@ export default function HomePage() {
             <button
               key={type}
               onClick={() => setPrivacyFilter(type)}
-              className={`px-4 py-2 rounded-md transition-colors duration-200 flex items-center gap-2 font-medium text-sm cursor-pointer ${
+              className={`px-4 py-2 rounded-md transition-all duration-200 flex items-center gap-2 font-medium text-sm cursor-pointer active:scale-95 ${
                 privacyFilter === type 
                   ? 'bg-gray-900 text-white' 
                   : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
@@ -150,14 +154,14 @@ export default function HomePage() {
       )}
 
       {error && !loading && (
-        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg">
+        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg animate-shake">
           <p className="font-semibold text-lg mb-1">Error loading libraries</p>
           <p className="text-sm mb-3">{error}</p>
           <Button 
             onClick={() => setRefreshTrigger(prev => prev + 1)} 
             variant="outline" 
             size="sm" 
-            className="border-red-300 hover:bg-red-100"
+            className="border-red-300 hover:bg-red-100 active:scale-95 transition-transform"
           >
             Try Again
           </Button>
@@ -166,13 +170,18 @@ export default function HomePage() {
 
       {!loading && !error && filteredLibraries.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredLibraries.map(library => (
-            <LibraryCard 
-              key={library.id} 
-              library={library} 
-              onLibraryUpdated={handleLibraryUpdated}
-              onLibraryDeleted={handleLibraryDeleted}
-            />
+          {filteredLibraries.map((library, index) => (
+            <div 
+              key={library.id}
+              className="animate-fade-in"
+              style={{ animationDelay: `${index * 50}ms`, animationFillMode: 'backwards' }}
+            >
+              <LibraryCard 
+                library={library} 
+                onLibraryUpdated={handleLibraryUpdated}
+                onLibraryDeleted={handleLibraryDeleted}
+              />
+            </div>
           ))}
         </div>
       )}

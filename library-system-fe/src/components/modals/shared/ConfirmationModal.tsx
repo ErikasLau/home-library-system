@@ -62,7 +62,6 @@ export default function ConfirmationModal({
         className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in zoom-in-95 duration-300 border-2 border-black"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
         <div className="bg-black text-white p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
@@ -84,12 +83,10 @@ export default function ConfirmationModal({
           </div>
         </div>
 
-        {/* Modal Body */}
         <div className="p-4 sm:p-6">
           <p className="text-gray-600 text-sm sm:text-base">{description}</p>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3 p-4 sm:p-6 pt-0">
           <Button
             onClick={onClose}

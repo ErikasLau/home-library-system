@@ -3,6 +3,8 @@ package com.myhomelibrary.library_system.repositories;
 import com.myhomelibrary.library_system.entities.BookEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -18,5 +20,6 @@ public interface BookRepository extends JpaRepository<BookEntity, Long> {
     Optional<BookEntity> findBookByIdAndLibrary_Id(UUID id, UUID libraryId);
 
     @EntityGraph(attributePaths = {"user"})
-    List<BookEntity> findAllBooksByLibrary_Id(UUID libraryId);
+    @Query("SELECT b FROM BookEntity b WHERE b.library.id = :libraryId ORDER BY b.updatedAt DESC, b.createdAt DESC")
+    List<BookEntity> findAllBooksByLibrary_Id(@Param("libraryId") UUID libraryId);
 }

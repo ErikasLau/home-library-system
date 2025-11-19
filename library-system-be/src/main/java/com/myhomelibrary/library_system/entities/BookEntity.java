@@ -80,6 +80,7 @@ public class BookEntity implements OwnableResource {
     private UserEntity user;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("updatedAt DESC, createdAt DESC")
     private List<CommentEntity> comments;
 
     @Override

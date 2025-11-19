@@ -19,6 +19,13 @@ export default function BookDetailsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNotFound, setIsNotFound] = useState(false);
+  const [isForbidden, setIsForbidden] = useState(false);
+
+  useEffect(() => {
+    if (book) {
+      document.title = `${book.title} - Home Library System`;
+    }
+  }, [book]);
 
   useEffect(() => {
     const fetchBook = async () => {
@@ -32,6 +39,7 @@ export default function BookDetailsPage() {
         setLoading(true);
         setError(null);
         setIsNotFound(false);
+        setIsForbidden(false);
         const [bookData, libraryData] = await Promise.all([
           bookService.getBookById(libraryId, bookId),
           libraryService.getLibraryById(libraryId)
@@ -43,6 +51,9 @@ export default function BookDetailsPage() {
         if (apiError?.status === 404) {
           setIsNotFound(true);
           setError('Book not found');
+        } else if (apiError?.status === 403) {
+          setIsForbidden(true);
+          setError('Access denied');
         } else {
           setError(apiError?.message || 'Failed to load book details');
         }
@@ -105,8 +116,23 @@ export default function BookDetailsPage() {
           <ArrowLeft className="w-5 h-5 transition-transform group-hover:scale-110" />
           <span className="font-medium">Back to Books</span>
         </Link>
-        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg">
-          {isNotFound ? (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg animate-shake">
+          {isForbidden ? (
+            <>
+              <p className="font-semibold text-lg mb-1">Access Denied</p>
+              <p className="text-sm mb-3">
+                You don't have permission to view this book.
+              </p>
+              <Button 
+                onClick={() => navigate('/')} 
+                variant="outline" 
+                size="sm"
+                className="border-red-300 hover:bg-red-100 active:scale-95 transition-transform"
+              >
+                Return to Home
+              </Button>
+            </>
+          ) : isNotFound ? (
             <>
               <p className="font-semibold text-lg mb-1">Book Not Found</p>
               <p className="text-sm mb-3">
@@ -116,7 +142,7 @@ export default function BookDetailsPage() {
                 onClick={() => navigate(`/library/${libraryId}`)} 
                 variant="outline" 
                 size="sm"
-                className="border-red-300 hover:bg-red-100"
+                className="border-red-300 hover:bg-red-100 active:scale-95 transition-transform"
               >
                 Return to Library
               </Button>
@@ -133,7 +159,7 @@ export default function BookDetailsPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6 animate-fade-in-up">
       <Link 
         to={`/library/${libraryId}`}
         className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:-translate-x-1 group cursor-pointer"
@@ -142,11 +168,11 @@ export default function BookDetailsPage() {
         <span className="font-medium">Back to Books</span>
       </Link>
 
-      <div className="bg-gray-50 rounded-lg p-6 md:p-8 border border-gray-200">
+      <div className="bg-gray-50 rounded-lg p-6 md:p-8 border border-gray-200 animate-fade-in" style={{ animationDelay: '100ms', animationFillMode: 'backwards' }}>
         <BookInfo book={book} />
       </div>
 
-      <div className="bg-gray-50 rounded-lg p-6 md:p-8 border border-gray-200">
+      <div className="bg-gray-50 rounded-lg p-6 md:p-8 border border-gray-200 animate-fade-in" style={{ animationDelay: '200ms', animationFillMode: 'backwards' }}>
         <div className="flex items-center gap-2 mb-6">
           <MessageCircle className="w-6 h-6 text-gray-900" />
           <h2 className="text-2xl font-semibold text-gray-900">

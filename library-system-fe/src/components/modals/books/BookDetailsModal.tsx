@@ -93,7 +93,6 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-300 overflow-y-auto">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl my-8 overflow-hidden animate-in zoom-in-95 duration-300">
-        {/* Modal Header */}
         <div className="bg-linear-to-r from-muted to-muted/60 text-foreground p-6 border-b border-border">
           <div className="flex items-start justify-between gap-4">
             <div className="flex-1">
@@ -110,9 +109,7 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
           </div>
         </div>
 
-        {/* Modal Body */}
         <div className="p-6 space-y-6">
-          {/* Book Details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-1">
               <div className="rounded-xl overflow-hidden shadow-lg bg-muted">
@@ -146,14 +143,12 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
             </div>
           </div>
 
-          {/* Comments Section */}
           <div className="border-t-2 border-border pt-6">
             <div className="flex items-center gap-2 mb-4">
               <MessageCircle className="w-5 h-5 text-primary" />
               <h3>Comments ({comments.length})</h3>
             </div>
 
-            {/* Add Comment Form */}
             {user ? (
               <form onSubmit={handleAddComment} className="mb-6">
                 <div className="space-y-3">
@@ -181,7 +176,6 @@ export default function BookDetailsModal({ book, user, onClose }: BookDetailsMod
               </div>
             )}
 
-            {/* Comments List */}
             <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
               {comments.length > 0 ? (
                 comments.map((comment) => (

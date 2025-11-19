@@ -73,7 +73,6 @@ export default function UpdateCommentModal({
         className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border-2 border-black"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="bg-black text-white p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
@@ -95,9 +94,7 @@ export default function UpdateCommentModal({
           </div>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit(onSubmit)} className="p-4 sm:p-6 space-y-4">
-          {/* Star Rating */}
           <div className="space-y-2">
             <Label className="text-black font-semibold text-sm">
               Rating
@@ -149,7 +146,6 @@ export default function UpdateCommentModal({
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
               type="button"

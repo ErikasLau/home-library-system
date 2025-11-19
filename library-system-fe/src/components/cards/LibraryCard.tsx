@@ -65,7 +65,7 @@ export default function LibraryCard({ library, onLibraryUpdated, onLibraryDelete
   return (
     <>
       <div 
-        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-colors duration-200 hover:bg-gray-50 flex flex-col h-full"
+        className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-all duration-200 hover:shadow-lg flex flex-col h-full"
       >
         <div 
           className="p-6 border-b border-gray-200 flex-1"
@@ -96,7 +96,7 @@ export default function LibraryCard({ library, onLibraryUpdated, onLibraryDelete
         <div className="p-6 flex gap-2 items-center">
           <Link to={`/library/${library.id}`} className="flex-1">
             <Button 
-              className="w-full bg-black text-white hover:bg-gray-800 shadow-sm hover:shadow-md transition-all"
+              className="w-full bg-black text-white hover:bg-gray-800 shadow-sm hover:shadow-md transition-all active:scale-95"
             >
               <Eye className="w-4 h-4 mr-2" />
               View Books
@@ -105,7 +105,7 @@ export default function LibraryCard({ library, onLibraryUpdated, onLibraryDelete
           {canEdit && (
             <Button
               onClick={() => setShowUpdateModal(true)}
-              className="p-0 w-10 h-10 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
+              className="p-0 w-10 h-10 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all active:scale-90"
               title="Update library"
             >
               <Pencil className="w-4 h-4" />
@@ -114,7 +114,7 @@ export default function LibraryCard({ library, onLibraryUpdated, onLibraryDelete
           {canDelete && (
             <Button
               onClick={() => setShowDeleteModal(true)}
-              className="p-0 w-10 h-10 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all"
+              className="p-0 w-10 h-10 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all active:scale-90"
               title="Delete library"
             >
               <Trash2 className="w-4 h-4" />

@@ -27,14 +27,10 @@ public class LibraryService {
     }
 
     @Transactional(readOnly = true)
-    public List<Library> getAllLibraries() {
-        return libraryRepository.findAll()
+    public List<Library> getAllLibraries(Long userPk) {
+        return libraryRepository.findAllExcludingUser(userPk)
                 .stream()
                 .map(libraryConverter::toLibrary)
-                .sorted((l1, l2) -> {
-                    int result = l2.updatedAt().compareTo(l1.updatedAt());
-                    return result != 0 ? result : l2.createdAt().compareTo(l1.createdAt());
-                })
                 .toList();
     }
 
@@ -43,26 +39,17 @@ public class LibraryService {
         return libraryRepository.findAllByUserId(userPk)
                 .stream()
                 .map(libraryConverter::toLibrary)
-                .sorted((l1, l2) -> {
-                    int result = l2.updatedAt().compareTo(l1.updatedAt());
-                    return result != 0 ? result : l2.createdAt().compareTo(l1.createdAt());
-                })
                 .toList();
     }
 
     @Transactional(readOnly = true)
     public List<Library> getAllLibrariesBasedOnRole(Long userPk) {
         if (SecurityUtils.isCurrentUserAdmin() || SecurityUtils.isCurrentUserModerator()) {
-            return getAllLibraries();
+            return getAllLibraries(userPk);
         } else {
-            return libraryRepository.findAllByPrivacyStatus(LibraryPrivacyStatus.PUBLIC)
+            return libraryRepository.findAllByPrivacyStatusExcludingUser(LibraryPrivacyStatus.PUBLIC, userPk)
                     .stream()
-                    .filter(entity -> !entity.getOwnerId().equals(userPk))
                     .map(libraryConverter::toLibrary)
-                    .sorted((l1, l2) -> {
-                        int result = l2.updatedAt().compareTo(l1.updatedAt());
-                        return result != 0 ? result : l2.createdAt().compareTo(l1.createdAt());
-                    })
                     .toList();
         }
     }

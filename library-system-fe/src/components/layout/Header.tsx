@@ -14,17 +14,14 @@ export default function Header() {
         <div className="flex items-center justify-between h-14 md:h-16">
           <Logo />
 
-          {/* Center Navigation */}
           <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2">
             <NavLinks />
           </div>
 
-          {/* Desktop User Info */}
           <div className="hidden md:flex items-center">
             <UserInfo />
           </div>
 
-          {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="md:hidden p-2 rounded-lg hover:bg-primary-foreground/10 transition-all duration-300 active:scale-95 cursor-pointer"

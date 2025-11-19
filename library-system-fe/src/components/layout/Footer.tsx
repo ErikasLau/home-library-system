@@ -7,7 +7,6 @@ export default function Footer() {
     <footer className="bg-gray-100 border-t border-gray-200 mt-auto">
       <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="max-w-2xl mx-auto">
-          {/* About Section */}
           <div className="space-y-4 mb-8">
             <div className="flex items-center gap-2 justify-center md:justify-start">
               <BookOpen className="w-5 h-5 text-primary" />
@@ -18,7 +17,6 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* Copyright */}
           <div className="pt-6 border-t border-gray-300">
             <p className="text-center text-sm text-gray-600 flex items-center justify-center gap-2 flex-wrap">
               <span>© {currentYear} Home Library System</span>

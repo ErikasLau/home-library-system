@@ -17,6 +17,13 @@ export default function LibraryBooksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isNotFound, setIsNotFound] = useState(false);
+  const [isForbidden, setIsForbidden] = useState(false);
+
+  useEffect(() => {
+    if (library) {
+      document.title = `${library.title} - Home Library System`;
+    }
+  }, [library]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,6 +37,7 @@ export default function LibraryBooksPage() {
         setLoading(true);
         setError(null);
         setIsNotFound(false);
+        setIsForbidden(false);
         const [libraryData, booksData] = await Promise.all([
           libraryService.getLibraryById(libraryId),
           bookService.getBooksByLibrary(libraryId)
@@ -41,6 +49,9 @@ export default function LibraryBooksPage() {
         if (apiError?.status === 404) {
           setIsNotFound(true);
           setError('Library not found');
+        } else if (apiError?.status === 403) {
+          setIsForbidden(true);
+          setError('Access denied');
         } else {
           setError(apiError?.message || 'Failed to load library data. Please try again.');
         }
@@ -84,12 +95,20 @@ export default function LibraryBooksPage() {
           <ArrowLeft className="w-5 h-5 transition-transform group-hover:scale-110" />
           <span className="font-medium">Back to Libraries</span>
         </Link>
-        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg">
-          {isNotFound ? (
+        <div className="bg-red-50 border border-red-200 text-red-800 px-6 py-4 rounded-lg animate-shake">
+          {isForbidden ? (
+            <>
+              <p className="font-semibold text-lg mb-1">Access Denied</p>
+              <p className="text-sm mb-3">You don't have permission to view this library.</p>
+              <Button onClick={() => navigate('/')} variant="outline" size="sm" className="border-red-300 hover:bg-red-100 active:scale-95 transition-transform">
+                Return to Home
+              </Button>
+            </>
+          ) : isNotFound ? (
             <>
               <p className="font-semibold text-lg mb-1">Library Not Found</p>
-              <p className="text-sm mb-3">The library you're looking for doesn't exist or you don't have access to it.</p>
-              <Button onClick={() => navigate('/')} variant="outline" size="sm" className="border-red-300 hover:bg-red-100">
+              <p className="text-sm mb-3">The library you're looking for doesn't exist or has been removed.</p>
+              <Button onClick={() => navigate('/')} variant="outline" size="sm" className="border-red-300 hover:bg-red-100 active:scale-95 transition-transform">
                 Return to Home
               </Button>
             </>
@@ -105,7 +124,7 @@ export default function LibraryBooksPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6 animate-fade-in-up">
       <Link 
         to="/"
         className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-all duration-200 hover:-translate-x-1 group cursor-pointer"
@@ -129,15 +148,20 @@ export default function LibraryBooksPage() {
         {books.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
             {books.map((book, index) => (
-              <BookCard
+              <div
                 key={book.id}
-                book={book}
-                library={library}
-                index={index}
-                onClick={() => navigate(`/library/${libraryId}/book/${book.id}`)}
-                onBookUpdated={refetchBooks}
-                onBookDeleted={refetchBooks}
-              />
+                className="animate-fade-in"
+                style={{ animationDelay: `${index * 30}ms`, animationFillMode: 'backwards' }}
+              >
+                <BookCard
+                  book={book}
+                  library={library}
+                  index={index}
+                  onClick={() => navigate(`/library/${libraryId}/book/${book.id}`)}
+                  onBookUpdated={refetchBooks}
+                  onBookDeleted={refetchBooks}
+                />
+              </div>
             ))}
           </div>
         ) : (

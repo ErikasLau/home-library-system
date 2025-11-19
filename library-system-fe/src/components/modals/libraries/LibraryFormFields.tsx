@@ -24,11 +24,10 @@ export default function LibraryFormFields({ register, errors, watch, setValue }:
 
   return (
     <>
-      {/* Title Field */}
       <div className="space-y-2">
         <Label htmlFor="title" className="flex items-center gap-2 text-black font-medium">
           <LibraryIcon className="w-4 h-4 text-gray-600" />
-          Library Title
+          Library Title <span className="text-red-500">*</span>
         </Label>
         <Input
           id="title"
@@ -42,7 +41,6 @@ export default function LibraryFormFields({ register, errors, watch, setValue }:
         )}
       </div>
 
-      {/* Description Field */}
       <div className="space-y-2">
         <Label htmlFor="description" className="flex items-center gap-2 text-black font-medium">
           <FileText className="w-4 h-4 text-gray-600" />
@@ -60,7 +58,6 @@ export default function LibraryFormFields({ register, errors, watch, setValue }:
         )}
       </div>
 
-      {/* Color Picker */}
       <div className="space-y-2">
         <Label className="flex items-center gap-2 text-black font-medium">
           <Palette className="w-4 h-4 text-gray-600" />
@@ -71,7 +68,6 @@ export default function LibraryFormFields({ register, errors, watch, setValue }:
             <p className="text-red-600 text-sm">{errors.color.message}</p>
           )}
           
-          {/* Preset Colors - Single Row */}
           <div className="grid grid-cols-9 gap-2">
             {PRESET_COLORS.map((color) => (
               <button
@@ -89,7 +85,6 @@ export default function LibraryFormFields({ register, errors, watch, setValue }:
         </div>
       </div>
 
-      {/* Privacy Settings */}
       <div className="space-y-3">
         <Label className="flex items-center gap-2 text-black font-medium">
           Privacy Settings

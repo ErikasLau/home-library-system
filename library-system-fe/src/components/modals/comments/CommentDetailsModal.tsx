@@ -65,7 +65,6 @@ export default function CommentDetailsModal({
         className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden animate-in zoom-in-95 duration-300 border-2 border-black"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="bg-black text-white p-4 sm:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 sm:gap-3">
@@ -86,9 +85,7 @@ export default function CommentDetailsModal({
           </div>
         </div>
 
-        {/* Content */}
         <div className="p-4 sm:p-6 space-y-6 max-h-[calc(90vh-200px)] overflow-y-auto">
-          {/* User Info */}
           <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
             <div className="w-12 h-12 bg-black rounded-full flex items-center justify-center">
               <User className="w-6 h-6 text-white" />
@@ -99,7 +96,6 @@ export default function CommentDetailsModal({
             </div>
           </div>
 
-          {/* Rating */}
           <div className="space-y-3">
             <p className="text-black font-semibold text-sm">Rating</p>
             <div className="flex items-center gap-1">
@@ -119,7 +115,6 @@ export default function CommentDetailsModal({
             </div>
           </div>
 
-          {/* Comment Text */}
           <div className="space-y-3">
             <p className="text-black font-semibold text-sm">Comment</p>
             <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
@@ -130,8 +125,7 @@ export default function CommentDetailsModal({
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex flex-col sm:flex-row gap-3 p-4 sm:p-6 pt-0">
+        <div className="flex gap-3 p-4 sm:p-6 pt-0">
           <Button
             onClick={onClose}
             variant="outline"
@@ -142,7 +136,7 @@ export default function CommentDetailsModal({
           {canEdit && (
             <Button
               onClick={() => setShowUpdateModal(true)}
-              className="p-0 w-11 h-11 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all"
+              className="p-0 w-11 h-11 bg-gray-200 text-gray-800 hover:bg-gray-300 shadow-sm hover:shadow-md transition-all shrink-0"
               title="Update comment"
             >
               <Pencil className="w-4 h-4" />
@@ -154,7 +148,7 @@ export default function CommentDetailsModal({
                 onDelete(comment.id);
                 onClose();
               }}
-              className="p-0 w-11 h-11 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all"
+              className="p-0 w-11 h-11 bg-red-100 text-red-600 hover:bg-red-200 shadow-sm hover:shadow-md transition-all shrink-0"
               title="Delete comment"
             >
               <Trash2 className="w-4 h-4" />

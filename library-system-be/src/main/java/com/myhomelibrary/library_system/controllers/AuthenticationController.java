@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +27,7 @@ public class AuthenticationController {
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "User registered successfully"),
     })
-    public Response<User> register(@RequestBody RegistrationRequest registrationRequest) {
+    public Response<User> register(@Valid @RequestBody RegistrationRequest registrationRequest) {
         return Response.success(userService.registerUser(registrationRequest));
     }
 

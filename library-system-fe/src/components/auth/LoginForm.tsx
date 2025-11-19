@@ -42,11 +42,19 @@ export default function LoginForm({ onToggleMode }: LoginFormProps) {
 
   useEffect(() => {
     if (error) {
-      const errorMessage = error.title || error.message || 'An error occurred';
+      const errorTitle = error.title || error.message || 'An error occurred';
+      const errorDetails = error.details;
       
-      toast.error(errorMessage, {
-        duration: 5000,
-      });
+      if (errorDetails && errorDetails !== errorTitle) {
+        toast.error(errorTitle, {
+          description: errorDetails,
+          duration: 5000,
+        });
+      } else {
+        toast.error(errorTitle, {
+          duration: 5000,
+        });
+      }
     }
   }, [error]);
 
